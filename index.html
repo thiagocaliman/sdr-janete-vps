@@ -1,0 +1,1701 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>AI PRO Janete: atendente de IA para o WhatsApp do seu comércio</title>
+<meta name="description" content="A Janete responde o WhatsApp do seu comércio em segundos, a qualquer hora, qualifica quem quer comprar e entrega para a sua equipe. No ar em até 7 dias depois da conversa inicial, com garantia de 30 dias.">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<style>
+@font-face {
+  font-family: 'Geist';
+  src: url('fonts/Geist-Variable.woff2') format('woff2');
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+:root {
+  --laranja: #ff551b;
+  --laranja-hover: #f0440d;
+  --laranja-texto: #ad310b;
+  --laranja-claro: #ffede6;
+  --laranja-nevoa: #fff6f2;
+  --carbono: #0a0a0a;
+  --carbono-alto: #1b1b20;
+  --tinta: #1b1b20;
+  --tinta-2: #525258;
+  --tinta-3: #66666e;
+  --canvas: #f5f5f6;
+  --branco: #ffffff;
+  --linha: #e7e7eb;
+  --linha-forte: #d6d6dc;
+  --rosa: #fce4ef;
+  --menta: #dff5ea;
+  --areia: #fff2d9;
+  --ceu: #e3eefb;
+  --sucesso: #17845a;
+  --erro: #b42318;
+  --erro-claro: #fdecea;
+  --palco-tinta-2: #c4c4cc;
+  --palco-linha: rgb(255 255 255 / 0.12);
+  --sombra-card: 0 1px 2px rgb(27 27 32 / 0.06), 0 1px 1px rgb(27 27 32 / 0.04);
+  --sombra-flutuante: 0 24px 48px -16px rgb(27 27 32 / 0.28), 0 2px 6px rgb(27 27 32 / 0.08);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-mola: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-travessia: cubic-bezier(0.65, 0, 0.35, 1);
+  --fonte: 'Geist', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --laranja-texto: #ff8a5c;
+    --laranja-claro: #3a1d12;
+    --laranja-nevoa: #24160f;
+    --tinta: #ededf0;
+    --tinta-2: #b0b0b8;
+    --tinta-3: #8f8f99;
+    --canvas: #0e0e11;
+    --branco: #18181c;
+    --linha: #2a2a31;
+    --linha-forte: #3a3a43;
+    --rosa: #3a2230;
+    --menta: #15302a;
+    --areia: #352a14;
+    --ceu: #1a2636;
+    --sucesso: #4cc38a;
+    --erro: #ff8a7a;
+    --erro-claro: #3a1a17;
+    --sombra-card: 0 1px 2px rgb(0 0 0 / 0.4);
+    --sombra-flutuante: 0 24px 48px -16px rgb(0 0 0 / 0.7), 0 2px 6px rgb(0 0 0 / 0.4);
+    color-scheme: dark;
+  }
+  /* no escuro, os quadros pretos ganham contorno para não sumir no fundo */
+  .numero.forte, .preco-principal, .calc-resultado, .peca.escura { box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.1); }
+  .calc-resultado { border-left: 1px solid rgb(255 255 255 / 0.08); }
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  background: var(--canvas);
+  color: var(--tinta);
+  font-family: var(--fonte);
+  font-size: 17px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+}
+
+img, svg { display: block; max-width: 100%; }
+
+a { color: inherit; }
+
+h1, h2, h3 { margin: 0; line-height: 1.08; letter-spacing: -0.035em; text-wrap: balance; }
+
+h2 { font-size: clamp(32px, 4.6vw, 54px); font-weight: 660; }
+
+h3 { font-size: 19px; font-weight: 620; letter-spacing: -0.02em; line-height: 1.3; }
+
+p { margin: 0; }
+
+.envoltorio {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding-left: max(20px, env(safe-area-inset-left, 0px));
+  padding-right: max(20px, env(safe-area-inset-right, 0px));
+}
+
+.rotulo {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--laranja-texto);
+}
+
+.rotulo::before { content: ''; width: 14px; height: 3px; background: var(--laranja); }
+
+.secao { padding-block: clamp(64px, 8vw, 104px); }
+
+.cabeca-secao { display: grid; gap: 16px; max-width: 760px; margin-bottom: clamp(32px, 4vw, 48px); }
+
+.cabeca-secao.centro { margin-inline: auto; text-align: center; justify-items: center; }
+
+@media (min-width: 1001px) {
+  .cabeca-secao.lado { max-width: none; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); column-gap: 72px; align-items: end; }
+  .cabeca-secao.lado .rotulo { grid-column: 1; }
+  .cabeca-secao.lado h2 { grid-column: 1; }
+  .cabeca-secao.lado p { grid-column: 2; grid-row: 2; padding-bottom: 6px; }
+}
+
+.cabeca-secao p { color: var(--tinta-2); font-size: clamp(17px, 1.5vw, 20px); max-width: 60ch; }
+
+.destaque-laranja { color: var(--laranja-texto); }
+
+.palco .destaque-laranja { color: var(--laranja); }
+
+/* ---------------------------------------------------------------- botões */
+
+.botao {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 54px;
+  padding: 0 26px;
+  border-radius: 999px;
+  font: 620 16px/1 var(--fonte);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background-color 0.2s var(--ease-out), transform 0.25s var(--ease-out), box-shadow 0.25s var(--ease-out), border-color 0.2s;
+}
+
+.botao:active { transform: scale(0.97); }
+
+.botao:focus-visible { outline: 2px solid var(--laranja); outline-offset: 3px; }
+
+.botao-principal { background: var(--laranja); color: var(--carbono); box-shadow: 0 14px 30px -14px rgb(255 85 27 / 0.7); }
+
+.botao-principal:hover { background: var(--laranja-hover); transform: translateY(-1px); box-shadow: 0 18px 34px -14px rgb(255 85 27 / 0.85); }
+
+.botao-contorno { border: 1px solid var(--palco-linha); color: #fff; }
+
+.botao-contorno:hover { border-color: rgb(255 255 255 / 0.4); }
+
+.botao svg { width: 20px; height: 20px; flex: none; }
+
+/* ---------------------------------------------------------------- marca */
+
+.marca { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; color: inherit; }
+
+.marca .simbolo { width: 34px; height: 34px; color: var(--laranja); }
+
+.marca-nome { display: grid; gap: 3px; }
+
+.marca-autor { display: flex; align-items: center; gap: 5px; font: 700 10px/1 var(--fonte); letter-spacing: 0.14em; }
+
+.marca-autor::before { content: ''; width: 12px; height: 3px; background: var(--laranja); }
+
+.marca-produto { font: 650 20px/1 var(--fonte); letter-spacing: -0.04em; }
+
+/* ---------------------------------------------------------------- palco (seções escuras) */
+
+.palco { position: relative; overflow: hidden; overflow: clip; background: var(--carbono); color: #fff; }
+
+.palco-fundo {
+  position: absolute;
+  z-index: 0;
+  width: min(1200px, 120vw);
+  aspect-ratio: 1;
+  color: color-mix(in srgb, var(--carbono-alto) 80%, white);
+  opacity: 0.32;
+  pointer-events: none;
+}
+
+.palco-brilho {
+  position: absolute;
+  z-index: 0;
+  width: 900px;
+  height: 900px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgb(255 85 27 / 0.22), transparent 62%);
+  filter: blur(10px);
+  pointer-events: none;
+}
+
+.topo {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  transition: background-color 0.3s, backdrop-filter 0.3s, border-color 0.3s;
+  border-bottom: 1px solid transparent;
+}
+
+.topo.rolado { background: rgb(10 10 10 / 0.78); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border-color: var(--palco-linha); }
+
+.topo .envoltorio { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-block: 16px; color: #fff; }
+
+.topo nav { display: flex; gap: 28px; font-size: 15px; color: var(--palco-tinta-2); }
+
+.topo nav a { text-decoration: none; transition: color 0.2s; }
+
+.topo nav a:hover { color: #fff; }
+
+.topo .botao { min-height: 44px; padding: 0 18px; font-size: 15px; box-shadow: none; }
+
+.progresso { position: absolute; left: 0; bottom: -1px; height: 2px; width: 100%; background: var(--laranja); transform-origin: left; transform: scaleX(0); }
+
+/* ---------------------------------------------------------------- herói */
+
+.heroi { position: relative; z-index: 1; display: grid; justify-items: center; text-align: center; gap: 28px; padding-block: clamp(36px, 6vw, 72px) 0; }
+
+.heroi h1 { font-size: clamp(42px, 7vw, 92px); font-weight: 690; letter-spacing: -0.05em; max-width: 13em; }
+
+.heroi > p { font-size: clamp(18px, 1.7vw, 22px); color: var(--palco-tinta-2); max-width: 38em; }
+
+.heroi .rotulo { color: var(--laranja); }
+
+.acoes { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
+
+.garantias { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 24px; padding: 0; margin: 0; list-style: none; font-size: 14px; color: var(--palco-tinta-2); }
+
+.garantias li { display: inline-flex; align-items: center; gap: 8px; }
+
+.garantias svg { width: 16px; height: 16px; color: var(--laranja); }
+
+.heroi > * { animation: sobe 0.9s var(--ease-out) both; }
+.heroi > *:nth-child(2) { animation-delay: 0.08s; }
+.heroi > *:nth-child(3) { animation-delay: 0.16s; }
+.heroi > *:nth-child(4) { animation-delay: 0.24s; }
+.heroi > *:nth-child(5) { animation-delay: 0.32s; }
+
+@keyframes sobe { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
+
+/* ---------------------------------------------------------------- cena: painel + telefone */
+
+.cena-moldura { position: relative; z-index: 1; width: 100%; max-width: 1180px; margin: clamp(48px, 6vw, 72px) auto 0; animation: sobe 1.1s var(--ease-out) 0.4s both; }
+
+.cena { position: relative; width: 1120px; height: 660px; transform-origin: top left; }
+
+.painel {
+  position: absolute;
+  left: 0;
+  top: 40px;
+  width: 830px;
+  height: 580px;
+  overflow: hidden;
+  border-radius: 18px;
+  background: #f5f5f6;
+  color: #1b1b20;
+  box-shadow: 0 0 0 1px rgb(255 255 255 / 0.1), 0 50px 100px -40px rgb(0 0 0 / 0.9);
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.janela-barra { display: flex; align-items: center; gap: 14px; height: 38px; padding: 0 14px; background: #fff; border-bottom: 1px solid #e7e7eb; }
+
+.janela-barra .pontos { display: flex; gap: 6px; }
+
+.janela-barra .pontos i { width: 10px; height: 10px; border-radius: 50%; background: #e1e1e6; }
+
+.janela-barra .url { flex: 1; max-width: 360px; margin: 0 auto; padding: 4px 12px; border-radius: 8px; background: #f2f2f4; color: #66666e; font-size: 11.5px; text-align: center; }
+
+.painel-corpo { display: grid; grid-template-columns: 60px minmax(0, 1fr); height: calc(100% - 38px); }
+
+.lateral { display: grid; align-content: start; justify-items: center; gap: 8px; padding-top: 14px; background: #fff; border-right: 1px solid #e7e7eb; }
+
+.lateral .simbolo { width: 30px; height: 30px; color: var(--laranja); margin-bottom: 10px; }
+
+.lateral span { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 11px; color: #85858e; }
+
+.lateral span.ativo { background: #ffede6; color: #ad310b; }
+
+.lateral svg { width: 19px; height: 19px; }
+
+.area { display: grid; grid-template-rows: auto minmax(0, 1fr); padding: 18px 46px 0 18px; gap: 16px; min-width: 0; }
+
+.area-topo { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+
+.area-topo strong { font-size: 19px; font-weight: 650; letter-spacing: -0.03em; }
+
+.kpis { display: flex; gap: 8px; }
+
+.kpi { display: grid; gap: 1px; padding: 7px 12px; border-radius: 12px; background: #fff; box-shadow: 0 1px 2px rgb(27 27 32 / 0.06); min-width: 88px; }
+
+.kpi small { font-size: 10.5px; color: #66666e; }
+
+.kpi b { font-size: 16px; font-weight: 680; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; transition: color 0.4s; }
+
+.kpi b.pulsa { color: var(--laranja); }
+
+.colunas { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; min-height: 0; }
+
+.coluna { display: flex; flex-direction: column; gap: 8px; min-height: 0; padding: 10px; border-radius: 16px; background: color-mix(in srgb, #e9edf3 55%, #f5f5f6); }
+
+.coluna-cabeca { display: flex; align-items: center; justify-content: space-between; padding: 2px 4px 4px; font-weight: 620; font-size: 12.5px; }
+
+.coluna-cabeca em { font-style: normal; min-width: 22px; padding: 1px 7px; border-radius: 999px; background: #fff; color: #525258; font-size: 11px; text-align: center; font-variant-numeric: tabular-nums; }
+
+.lista { display: flex; flex-direction: column; gap: 8px; }
+
+.card {
+  position: relative;
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr);
+  gap: 3px 9px;
+  align-items: center;
+  padding: 9px 10px;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 1px 2px rgb(27 27 32 / 0.06), 0 1px 1px rgb(27 27 32 / 0.04);
+  will-change: transform;
+}
+
+.card .av { grid-row: span 2; display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; font-size: 11px; font-weight: 700; color: #1b1b20; }
+
+.card b { font-size: 12.5px; font-weight: 620; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.card small { color: #66666e; font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.card .selo { grid-column: 1 / -1; justify-self: start; margin-top: 4px; padding: 2px 8px; border-radius: 999px; background: #f2f2f4; color: #525258; font-size: 10.5px; font-weight: 600; transition: background-color 0.4s, color 0.4s; }
+
+.card .selo.s-janete { background: #ffede6; color: #ad310b; }
+
+.card .selo.s-pronto { background: #ff551b; color: #0a0a0a; }
+
+.card .selo.s-equipe { background: #dff5ea; color: #17845a; }
+
+.card.vivo { box-shadow: 0 0 0 2px var(--laranja), 0 16px 30px -12px rgb(255 85 27 / 0.45); }
+
+.card.entra { animation: cardEntra 0.6s var(--ease-mola) both; }
+
+@keyframes cardEntra { from { opacity: 0; transform: translateY(-12px) scale(0.9); } }
+
+.av.rosa { background: #fce4ef; } .av.menta { background: #dff5ea; } .av.areia { background: #fff2d9; } .av.ceu { background: #e3eefb; } .av.lilas { background: #efedff; }
+
+/* telefone */
+.telefone {
+  position: absolute;
+  left: 800px;
+  top: 0;
+  width: 310px;
+  height: 640px;
+  border-radius: 46px;
+  padding: 11px;
+  background: #1b1b20;
+  box-shadow: 0 0 0 1px rgb(255 255 255 / 0.1), 0 50px 90px -30px rgb(0 0 0 / 0.95);
+}
+
+.tela { display: flex; flex-direction: column; height: 100%; overflow: hidden; border-radius: 36px; background: #ece5dd; color: #1b1b20; }
+
+.tela-topo { display: flex; align-items: center; gap: 10px; padding: 34px 14px 12px; background: #fff; border-bottom: 1px solid #e7e7eb; }
+
+.tela-topo .avatar { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 50%; background: var(--carbono); color: var(--laranja); flex: none; }
+
+.tela-topo .avatar .simbolo { width: 28px; height: 28px; }
+
+.tela-topo strong { display: block; font-size: 14.5px; font-weight: 620; line-height: 1.2; }
+
+.tela-topo span { font-size: 12px; color: #17845a; }
+
+.conversa { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; gap: 7px; padding: 14px 12px 18px; overflow: hidden; }
+
+.bolha { max-width: 86%; padding: 8px 11px 7px; border-radius: 13px; font-size: 13.5px; line-height: 1.4; box-shadow: 0 1px 1px rgb(0 0 0 / 0.08); animation: entra 0.5s var(--ease-mola) both; }
+
+.bolha small { display: block; margin-top: 2px; font-size: 10.5px; color: #66666e; text-align: right; }
+
+.bolha.lead { align-self: flex-end; background: #dcf8c6; border-bottom-right-radius: 4px; }
+
+.bolha.janete { align-self: flex-start; background: #fff; border-bottom-left-radius: 4px; }
+
+.bolha.audio { display: flex; align-items: center; gap: 9px; min-width: 200px; }
+
+.onda { display: flex; align-items: center; gap: 2px; height: 22px; flex: 1; }
+
+.onda i { display: block; width: 3px; border-radius: 2px; background: #7b9a6b; }
+
+.digitando { display: inline-flex; gap: 4px; padding: 12px 13px; }
+
+.digitando i { width: 7px; height: 7px; border-radius: 50%; background: #85858e; animation: pula 1.1s ease-in-out infinite; }
+
+.digitando i:nth-child(2) { animation-delay: 0.12s; }
+.digitando i:nth-child(3) { animation-delay: 0.24s; }
+
+.passagem { align-self: center; padding: 5px 12px; border-radius: 8px; background: #fff6d6; font-size: 11.5px; color: #5c4a00; text-align: center; animation: entra 0.5s var(--ease-mola) both; }
+
+@keyframes entra { from { opacity: 0; transform: translateY(10px) scale(0.95); } to { opacity: 1; transform: none; } }
+
+@keyframes pula { 0%, 60%, 100% { transform: translateY(0); } 30% { transform: translateY(-5px); } }
+
+.selo-tempo {
+  position: absolute;
+  left: 452px;
+  top: 380px;
+  z-index: 3;
+  display: grid;
+  gap: 1px;
+  padding: 10px 15px;
+  border-radius: 16px;
+  background: var(--laranja);
+  color: var(--carbono);
+  box-shadow: 0 20px 40px -16px rgb(255 85 27 / 0.7);
+  animation: flutua 5s ease-in-out infinite;
+}
+
+.selo-tempo strong { font-size: 22px; font-weight: 720; letter-spacing: -0.03em; line-height: 1; font-variant-numeric: tabular-nums; }
+
+.selo-tempo span { font-size: 11.5px; font-weight: 600; }
+
+@keyframes flutua { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+
+/* versão de celular da cena: só o telefone e a etapa do card */
+.mini-etapa { display: none; }
+
+/* ---------------------------------------------------------------- faixa de segmentos */
+
+.faixa { position: relative; z-index: 1; margin-top: -1px; padding-block: 30px; border-top: 1px solid var(--palco-linha); overflow: hidden; color: var(--palco-tinta-2); }
+
+.faixa-trilho { display: flex; gap: 48px; width: max-content; animation: desliza 38s linear infinite; font-size: 15px; font-weight: 560; white-space: nowrap; }
+
+.faixa-trilho span { display: inline-flex; align-items: center; gap: 48px; }
+
+.faixa-trilho span::after { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--laranja); }
+
+.faixa:hover .faixa-trilho { animation-play-state: paused; }
+
+@keyframes desliza { to { transform: translateX(-50%); } }
+
+/* ---------------------------------------------------------------- dor: a noite */
+
+.noite { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; }
+
+.trilha { display: grid; gap: 0; align-content: start; padding: clamp(22px, 3vw, 34px); border-radius: 28px; background: var(--branco); border: 1px solid var(--linha); box-shadow: var(--sombra-card); }
+
+.trilha-cabeca { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-bottom: 20px; margin-bottom: 8px; border-bottom: 1px solid var(--linha); }
+
+.trilha-cabeca h3 { font-size: 22px; }
+
+.trilha-cabeca .marcador { padding: 4px 12px; border-radius: 999px; font-size: 12.5px; font-weight: 650; white-space: nowrap; }
+
+.trilha.sem .marcador { background: var(--erro-claro); color: var(--erro); }
+
+.trilha.com .marcador { background: var(--laranja-claro); color: var(--laranja-texto); }
+
+.momento { position: relative; display: grid; grid-template-columns: 58px minmax(0, 1fr); gap: 14px; padding-block: 14px; opacity: 0; transform: translateY(14px); transition: opacity 0.6s var(--ease-out), transform 0.6s var(--ease-out); }
+
+.noite.ativa .momento { opacity: 1; transform: none; }
+
+.momento time { font-size: 14px; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--tinta-3); padding-top: 9px; }
+
+.momento .fala { justify-self: start; max-width: 100%; padding: 10px 14px; border-radius: 14px; font-size: 15.5px; background: var(--canvas); }
+
+.momento .fala.cliente { background: color-mix(in srgb, #dcf8c6 70%, var(--branco)); color: #1b1b20; }
+
+.momento .fala.janete { background: var(--laranja-claro); color: var(--tinta); }
+
+.momento .fala.vazio { background: transparent; border: 1px dashed var(--linha-forte); color: var(--tinta-3); font-style: italic; }
+
+.momento .fala.voce { background: var(--ceu); color: var(--tinta); }
+
+.desfecho { margin-top: 10px; padding: 16px 18px; border-radius: 18px; font-weight: 650; display: flex; align-items: center; gap: 10px; opacity: 0; transform: scale(0.96); transition: opacity 0.6s var(--ease-out), transform 0.6s var(--ease-mola); }
+
+.noite.ativa .desfecho { opacity: 1; transform: none; }
+
+.desfecho svg { width: 22px; height: 22px; flex: none; }
+
+.sem .desfecho { background: var(--erro-claro); color: var(--erro); }
+
+.com .desfecho { background: var(--menta); color: var(--sucesso); }
+
+.dor-fecho { margin-top: clamp(36px, 5vw, 56px); display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+
+.dor-item { display: grid; gap: 8px; padding: 24px; border-radius: 22px; border: 1px solid var(--linha); background: var(--branco); }
+
+.dor-item strong { font-size: 34px; font-weight: 720; letter-spacing: -0.05em; line-height: 1; color: var(--laranja-texto); }
+
+.dor-item p { color: var(--tinta-2); font-size: 15.5px; }
+
+/* ---------------------------------------------------------------- desejo: a manhã */
+
+.manha { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: clamp(36px, 6vw, 80px); align-items: center; }
+
+.manha .cabeca-secao { margin-bottom: 0; }
+
+.ganhos { display: grid; gap: 14px; padding: 0; margin: 6px 0 0; list-style: none; }
+
+.ganhos li { display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: 12px; align-items: start; color: var(--tinta-2); }
+
+.ganhos li strong { color: var(--tinta); }
+
+.ganhos svg { width: 28px; height: 28px; padding: 5px; border-radius: 9px; background: var(--laranja-claro); color: var(--laranja-texto); }
+
+.resumo { position: relative; padding: clamp(22px, 3vw, 32px); border-radius: 30px; background: var(--branco); border: 1px solid var(--linha); box-shadow: var(--sombra-flutuante); }
+
+.resumo-cabeca { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 22px; }
+
+.resumo-cabeca strong { font-size: 19px; letter-spacing: -0.02em; }
+
+.resumo-cabeca span { white-space: nowrap; padding: 4px 12px; border-radius: 999px; background: var(--canvas); color: var(--tinta-3); font-size: 12.5px; font-weight: 600; }
+
+.numeros { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-bottom: 22px; }
+
+.numero { display: grid; gap: 4px; padding: 16px 14px; border-radius: 18px; background: var(--canvas); }
+
+.numero b { font-size: clamp(26px, 3vw, 36px); font-weight: 720; letter-spacing: -0.05em; line-height: 1; font-variant-numeric: tabular-nums; }
+
+.numero.forte { background: var(--carbono); color: #fff; }
+
+.numero.forte b { color: var(--laranja); }
+
+.numero small { font-size: 12.5px; color: var(--tinta-3); line-height: 1.3; }
+
+.numero.forte small { color: var(--palco-tinta-2); }
+
+.prontos { display: grid; gap: 8px; }
+
+.prontos > small { font-size: 12px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--tinta-3); margin-bottom: 2px; }
+
+.pronto { display: grid; grid-template-columns: 36px minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 10px 12px; border-radius: 16px; border: 1px solid var(--linha); opacity: 0; transform: translateX(16px); transition: opacity 0.5s var(--ease-out), transform 0.5s var(--ease-out); }
+
+.resumo.ativo .pronto { opacity: 1; transform: none; }
+
+.pronto .av { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; font-size: 12px; font-weight: 700; color: var(--tinta); }
+
+.pronto b { display: block; font-size: 15px; font-weight: 620; }
+
+.pronto small { color: var(--tinta-3); font-size: 13px; }
+
+.pronto em { font-style: normal; padding: 3px 10px; border-radius: 999px; background: var(--laranja); color: var(--carbono); font-size: 12px; font-weight: 650; white-space: nowrap; }
+
+
+
+.cta-linha { display: grid; justify-items: center; gap: 14px; margin-top: clamp(32px, 4vw, 48px); text-align: center; }
+
+.cta-linha p { color: var(--tinta-2); font-size: 16px; max-width: 36em; }
+
+.calc-nota { font-size: 13.5px; }
+
+/* ---------------------------------------------------------------- por dentro do painel */
+
+.vitrine-abas { display: inline-flex; gap: 4px; padding: 5px; margin-bottom: 22px; border-radius: 999px; background: var(--branco); border: 1px solid var(--linha); }
+
+.vitrine-abas button { position: relative; overflow: hidden; padding: 10px 20px; border: 0; border-radius: 999px; background: transparent; color: var(--tinta-2); font: 620 15px/1 var(--fonte); cursor: pointer; transition: background-color 0.3s, color 0.3s; }
+
+.vitrine-abas button[aria-selected='true'] { background: var(--carbono); color: #fff; }
+
+.vitrine-abas button .barra { position: absolute; left: 14px; right: 14px; bottom: 4px; height: 2px; border-radius: 2px; background: var(--laranja); transform-origin: left; transform: scaleX(0); }
+
+.vitrine-abas button[aria-selected='true'] .barra.corre { animation: corre var(--duracao, 7s) linear forwards; }
+
+@keyframes corre { to { transform: scaleX(1); } }
+
+.vitrine-janela { overflow: hidden; border-radius: 20px; background: #fff; border: 1px solid var(--linha); box-shadow: var(--sombra-flutuante); }
+
+.vitrine-janela .janela-barra { height: 42px; }
+
+.vitrine-palco { position: relative; display: grid; align-items: start; overflow: hidden; transition: height 0.6s var(--ease-out); }
+
+.tela-app { grid-area: 1 / 1; align-self: start; position: relative; opacity: 0; visibility: hidden; transform: scale(1.015); transition: opacity 0.6s var(--ease-out), transform 0.9s var(--ease-out), visibility 0s 0.6s; }
+
+.tela-app.ativa { opacity: 1; visibility: visible; transform: none; transition: opacity 0.6s var(--ease-out), transform 0.9s var(--ease-out), visibility 0s; }
+
+.tela-app img { width: 100%; height: auto; }
+
+.ponto-quente { position: absolute; z-index: 2; display: grid; place-items: center; width: 30px; height: 30px; margin: -15px 0 0 -15px; border-radius: 50%; background: var(--laranja); color: var(--carbono); font-size: 13px; font-weight: 750; box-shadow: 0 0 0 0 rgb(255 85 27 / 0.55); animation: pulsa 2.2s ease-out infinite; }
+
+.ponto-quente:nth-of-type(2) { animation-delay: 0.4s; }
+.ponto-quente:nth-of-type(3) { animation-delay: 0.8s; }
+
+@keyframes pulsa { 0% { box-shadow: 0 0 0 0 rgb(255 85 27 / 0.55); } 70% { box-shadow: 0 0 0 16px rgb(255 85 27 / 0); } 100% { box-shadow: 0 0 0 0 rgb(255 85 27 / 0); } }
+
+.vitrine-legendas { display: grid; margin-top: 22px; }
+
+.legendas { grid-area: 1 / 1; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; opacity: 0; visibility: hidden; transition: opacity 0.5s, visibility 0s 0.5s; }
+
+.legendas.ativa { opacity: 1; visibility: visible; transition: opacity 0.5s 0.15s, visibility 0s; }
+
+.legenda { display: grid; grid-template-columns: 30px minmax(0, 1fr); gap: 12px; align-items: start; }
+
+.legenda > span { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: var(--laranja); color: var(--carbono); font-size: 13px; font-weight: 750; }
+
+.legenda b { display: block; font-size: 16px; font-weight: 640; margin-bottom: 2px; }
+
+.legenda p { color: var(--tinta-2); font-size: 15px; }
+
+@media (max-width: 760px) {
+  .legendas { grid-template-columns: minmax(0, 1fr); }
+  .ponto-quente { width: 22px; height: 22px; margin: -11px 0 0 -11px; font-size: 11px; }
+}
+
+/* ---------------------------------------------------------------- recursos (bento) */
+
+.bento { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 16px; }
+
+.peca { position: relative; display: grid; gap: 10px; align-content: start; overflow: hidden; padding: 28px; border-radius: 26px; background: var(--branco); border: 1px solid var(--linha); transition: transform 0.4s var(--ease-out), box-shadow 0.4s var(--ease-out); }
+
+.peca:hover { transform: translateY(-4px); box-shadow: var(--sombra-flutuante); }
+
+.peca p { color: var(--tinta-2); font-size: 16px; }
+
+.peca.larga { grid-column: span 3; }
+
+.peca.media { grid-column: span 2; }
+
+.peca.escura { background: var(--carbono); color: #fff; border-color: transparent; }
+
+.peca.escura p { color: var(--palco-tinta-2); }
+
+.ilustra { margin-top: 12px; }
+
+.relogio-24 { display: flex; align-items: flex-end; gap: 4px; height: 70px; }
+
+.relogio-24 i { flex: 1; border-radius: 4px 4px 2px 2px; background: color-mix(in srgb, var(--laranja) 28%, transparent); transform-origin: bottom; transform: scaleY(0); transition: transform 0.8s var(--ease-out); }
+
+.relogio-24 i.noturno { background: var(--laranja); }
+
+.peca.visivel .relogio-24 i { transform: scaleY(1); }
+
+.relogio-24-legenda { display: flex; justify-content: space-between; margin-top: 8px; font-size: 12px; color: var(--palco-tinta-2); }
+
+.ondas-grandes { display: flex; align-items: center; gap: 4px; height: 56px; }
+
+.ondas-grandes i { flex: 1; border-radius: 3px; background: var(--laranja); animation: vibra 1.2s ease-in-out infinite; }
+
+@keyframes vibra { 0%, 100% { transform: scaleY(0.35); } 50% { transform: scaleY(1); } }
+
+.transcricao { margin-top: 10px; padding: 10px 12px; border-radius: 12px; background: var(--canvas); font-size: 14px; color: var(--tinta-2); font-style: italic; }
+
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+
+.chips span { padding: 5px 12px; border-radius: 999px; background: var(--canvas); border: 1px solid var(--linha); font-size: 13px; color: var(--tinta-2); }
+
+.chips span.on { background: var(--laranja-claro); border-color: transparent; color: var(--laranja-texto); font-weight: 600; }
+
+.funil { display: grid; gap: 6px; }
+
+.funil div { display: flex; justify-content: space-between; align-items: center; height: 34px; padding: 0 14px; border-radius: 10px; background: var(--canvas); font-size: 13.5px; color: var(--tinta-2); transform-origin: left; transform: scaleX(0); transition: transform 0.9s var(--ease-out); }
+
+.funil div:nth-child(2) { width: 72%; transition-delay: 0.1s; }
+.funil div:nth-child(3) { width: 44%; transition-delay: 0.2s; background: var(--laranja); color: var(--carbono); font-weight: 650; }
+
+.peca.visivel .funil div { transform: none; }
+
+/* ---------------------------------------------------------------- calculadora */
+
+.calculadora { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); overflow: hidden; border-radius: 30px; background: var(--branco); border: 1px solid var(--linha); box-shadow: var(--sombra-flutuante); }
+
+.calc-campos { display: grid; gap: 30px; align-content: start; padding: clamp(28px, 4vw, 52px); }
+
+.campo { display: grid; gap: 12px; }
+
+.campo label { display: flex; justify-content: space-between; gap: 12px; font-weight: 600; font-size: 16px; }
+
+.campo output { font-variant-numeric: tabular-nums; color: var(--laranja-texto); font-weight: 720; font-size: 18px; }
+
+.campo input[type='range'] { width: 100%; height: 6px; accent-color: var(--laranja); cursor: pointer; }
+
+.campo small { color: var(--tinta-3); font-size: 14px; }
+
+.calc-resultado { position: relative; display: grid; grid-template-columns: minmax(0, 1fr); gap: 24px; align-content: center; overflow: hidden; overflow: clip; padding: clamp(28px, 4vw, 52px); background: var(--carbono); color: #fff; }
+
+.calc-resultado > *:not(.palco-brilho) { position: relative; }
+
+.calc-resultado .valor { font-size: clamp(48px, 6.4vw, 78px); font-weight: 720; letter-spacing: -0.055em; line-height: 1; color: var(--laranja); font-variant-numeric: tabular-nums; }
+
+.calc-resultado p { color: var(--palco-tinta-2); }
+
+.calc-linhas { display: grid; gap: 12px; padding-top: 22px; border-top: 1px solid var(--palco-linha); font-size: 15px; }
+
+.calc-linhas div { display: flex; justify-content: space-between; gap: 12px; }
+
+.calc-linhas strong { font-variant-numeric: tabular-nums; white-space: nowrap; text-align: right; }
+
+.calc-linhas .final strong { color: var(--laranja); }
+
+/* ---------------------------------------------------------------- linha do tempo */
+
+.tempo { position: relative; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 14px; padding: 0; margin: 0; list-style: none; }
+
+.tempo::before { content: ''; position: absolute; left: 0; right: 0; top: 17px; height: 2px; background: var(--linha); }
+
+.tempo-linha { position: absolute; left: 0; top: 17px; height: 2px; width: 100%; background: var(--laranja); transform-origin: left; transform: scaleX(0); transition: transform 1.8s var(--ease-travessia); }
+
+.tempo.ativo .tempo-linha { transform: none; }
+
+.etapa { position: relative; display: grid; gap: 8px; align-content: start; }
+
+.etapa .bola { position: relative; z-index: 1; display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; background: var(--branco); border: 2px solid var(--linha-forte); color: var(--tinta-3); font-weight: 700; font-size: 14px; transition: background-color 0.4s, border-color 0.4s, color 0.4s; }
+
+.tempo.ativo .etapa .bola { background: var(--carbono); border-color: var(--laranja); color: var(--laranja); }
+
+.etapa .dia { margin-top: 8px; font-size: 12px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--laranja-texto); }
+
+.etapa p { color: var(--tinta-2); font-size: 15px; }
+
+.etapa .voce { justify-self: start; padding: 2px 10px; border-radius: 999px; background: var(--laranja-claro); color: var(--laranja-texto); font-size: 12px; font-weight: 650; }
+
+/* ---------------------------------------------------------------- é seu */
+
+.seu { display: grid; grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr); gap: clamp(32px, 5vw, 72px); align-items: center; }
+
+.seu .cabeca-secao { margin-bottom: 0; }
+
+.seu h2 { color: #fff; }
+
+.seu .cabeca-secao p { color: var(--palco-tinta-2); }
+
+.comparacao { overflow-x: auto; border-radius: 26px; background: rgb(255 255 255 / 0.04); border: 1px solid var(--palco-linha); }
+
+.comparacao table { width: 100%; min-width: 480px; border-collapse: collapse; font-size: 15.5px; }
+
+.comparacao th, .comparacao td { padding: 17px 20px; text-align: left; border-bottom: 1px solid var(--palco-linha); vertical-align: top; }
+
+.comparacao tr:last-child td { border-bottom: 0; }
+
+.comparacao thead th { font-size: 12.5px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--palco-tinta-2); }
+
+.comparacao thead th.destaque { color: var(--laranja); }
+
+.comparacao td { color: var(--palco-tinta-2); }
+
+.comparacao td.destaque { background: rgb(255 85 27 / 0.1); color: #fff; font-weight: 600; }
+
+/* ---------------------------------------------------------------- objeções */
+
+.objecoes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+
+.objecao { display: grid; grid-template-rows: auto 1fr auto; gap: 14px; align-content: start; padding: clamp(24px, 3vw, 34px); border-radius: 26px; background: var(--branco); border: 1px solid var(--linha); }
+
+.objecao blockquote { margin: 0; font-size: clamp(20px, 2vw, 24px); font-weight: 650; letter-spacing: -0.03em; line-height: 1.25; }
+
+.objecao blockquote::before { content: '“'; display: block; height: 30px; margin-bottom: 4px; font-size: 54px; line-height: 1; color: var(--laranja); }
+
+.objecao p { color: var(--tinta-2); }
+
+.custos { list-style: none; margin: 14px 0 0; padding: 0; display: grid; gap: 10px; font-size: 15px; color: var(--tinta-2); }
+.custos li { position: relative; padding-left: 18px; }
+.custos li::before { content: ''; position: absolute; left: 0; top: .6em; width: 7px; height: 7px; border-radius: 50%; background: var(--laranja); }
+.custos b { color: var(--tinta); font-weight: 600; }
+
+.objecao .prova { display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px; border-radius: 14px; background: var(--laranja-nevoa); color: var(--tinta); font-size: 15px; }
+
+.objecao .prova svg { width: 20px; height: 20px; flex: none; margin-top: 2px; color: var(--laranja-texto); }
+
+/* ---------------------------------------------------------------- investimento */
+
+.preco { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr); gap: 16px; }
+
+.preco-principal { position: relative; display: grid; grid-template-columns: minmax(0, 1fr); gap: 24px; align-content: start; overflow: hidden; overflow: clip; padding: clamp(28px, 4vw, 48px); border-radius: 30px; background: var(--carbono); color: #fff; }
+
+.preco-principal > *:not(.palco-brilho) { position: relative; }
+
+.preco-principal .rotulo { color: var(--laranja); }
+
+.preco-valor { display: flex; align-items: baseline; flex-wrap: wrap; gap: 6px 14px; }
+
+.preco-valor strong { font-size: clamp(52px, 6.4vw, 80px); font-weight: 720; letter-spacing: -0.055em; line-height: 1; }
+
+.preco-valor span { color: var(--palco-tinta-2); }
+
+.preco-principal ul { display: grid; gap: 11px; padding: 0; margin: 0; list-style: none; color: var(--palco-tinta-2); }
+
+.preco-principal li { display: flex; gap: 10px; }
+
+.preco-principal li svg { width: 20px; height: 20px; flex: none; margin-top: 3px; color: var(--laranja); }
+
+.preco-principal .acoes { justify-content: flex-start; }
+
+.preco-lado { display: grid; gap: 16px; }
+
+.caixa { display: grid; gap: 10px; align-content: start; padding: 28px; border-radius: 26px; background: var(--branco); border: 1px solid var(--linha); }
+
+.caixa .rotulo { color: var(--tinta-3); }
+
+.caixa .rotulo::before { background: var(--linha-forte); }
+
+.caixa strong { font-size: 28px; font-weight: 720; letter-spacing: -0.04em; line-height: 1.1; }
+
+.caixa p { color: var(--tinta-2); font-size: 15.5px; }
+
+.caixa.seguranca { background: var(--laranja-nevoa); border-color: transparent; }
+
+.caixa.seguranca .rotulo { color: var(--laranja-texto); }
+
+.caixa.seguranca .rotulo::before { background: var(--laranja); }
+
+/* ---------------------------------------------------------------- perguntas */
+
+.perguntas { display: grid; gap: 10px; max-width: 840px; margin: 0 auto; }
+
+.perguntas details { border-radius: 18px; background: var(--branco); border: 1px solid var(--linha); transition: border-color 0.2s; }
+
+.perguntas details[open] { border-color: var(--linha-forte); }
+
+.perguntas summary { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 20px 24px; font-weight: 600; cursor: pointer; list-style: none; }
+
+.perguntas summary::-webkit-details-marker { display: none; }
+
+.perguntas summary::after { content: '+'; flex: none; font-size: 24px; font-weight: 400; line-height: 1; color: var(--laranja-texto); transition: transform 0.25s var(--ease-out); }
+
+.perguntas details[open] summary::after { transform: rotate(45deg); }
+
+.perguntas details p { padding: 0 24px 22px; color: var(--tinta-2); max-width: 66ch; }
+
+/* ---------------------------------------------------------------- final */
+
+.final-corpo { position: relative; z-index: 1; display: grid; justify-items: center; gap: 26px; text-align: center; padding-block: clamp(96px, 12vw, 160px); }
+
+.final-corpo h2 { max-width: 15em; font-size: clamp(36px, 5.6vw, 68px); }
+
+.final-corpo p { color: var(--palco-tinta-2); font-size: 19px; max-width: 34em; }
+
+.rodape { position: relative; z-index: 1; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding-block: 28px; border-top: 1px solid var(--palco-linha); font-size: 14px; color: var(--palco-tinta-2); }
+
+/* ---------------------------------------------------------------- entrada ao rolar */
+
+.revela { opacity: 0; transform: translateY(26px); transition: opacity 0.9s var(--ease-out), transform 0.9s var(--ease-out); transition-delay: var(--atraso, 0s); }
+
+.revela.visivel { opacity: 1; transform: none; }
+
+/* ---------------------------------------------------------------- telas menores */
+
+@media (max-width: 1000px) {
+  .topo nav { display: none; }
+  .manha, .seu, .calculadora, .preco { grid-template-columns: minmax(0, 1fr); }
+  .bento { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .peca.larga, .peca.media { grid-column: span 1; }
+  .tempo { grid-template-columns: repeat(3, minmax(0, 1fr)); row-gap: 36px; }
+  .tempo::before, .tempo-linha { display: none; }
+  .dor-fecho { grid-template-columns: minmax(0, 1fr); }
+}
+
+@media (max-width: 760px) {
+  /* no celular a cena vira só o telefone, com a etapa do card por cima */
+  .cena-moldura { max-width: 340px; }
+  .cena { width: 100% !important; height: auto !important; transform: none !important; }
+  .painel { display: none; }
+  .telefone { position: relative; left: auto; top: auto; width: 100%; height: 600px; }
+  .selo-tempo { left: -8px; top: auto; bottom: -24px; animation: none; }
+  .mini-etapa {
+    position: absolute;
+    right: -8px;
+    top: -26px;
+    z-index: 3;
+    display: grid;
+    gap: 2px;
+    padding: 10px 14px;
+    border-radius: 16px;
+    background: #fff;
+    color: #1b1b20;
+    box-shadow: 0 20px 40px -16px rgb(0 0 0 / 0.6);
+    font-size: 12px;
+    transition: transform 0.4s var(--ease-mola);
+  }
+  .mini-etapa small { color: #66666e; font-size: 10.5px; }
+  .mini-etapa b { font-size: 14px; }
+  .mini-etapa.troca { transform: scale(1.08); }
+  .noite, .objecoes { grid-template-columns: minmax(0, 1fr); }
+  .numeros { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 599px) {
+  body { font-size: 16px; }
+  .bento { grid-template-columns: minmax(0, 1fr); }
+  .tempo { grid-template-columns: minmax(0, 1fr); }
+  .topo .botao span { display: none; }
+  .topo .botao { padding: 0 14px; }
+  .acoes .botao, .cta-linha .botao { width: 100%; white-space: normal; text-align: center; line-height: 1.25; padding-block: 12px; }
+  .marca-produto { font-size: 18px; }
+  .momento { grid-template-columns: 48px minmax(0, 1fr); }
+  .comparacao table { min-width: 0; font-size: 14px; }
+  .pronto { grid-template-columns: 36px minmax(0, 1fr); }
+  .pronto em { grid-column: 2; justify-self: start; }
+  .comparacao th, .comparacao td { padding: 13px 10px; }
+  .comparacao thead th { font-size: 11px; letter-spacing: 0.04em; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 1ms !important; animation-delay: 0s !important; animation-iteration-count: 1 !important; transition-duration: 1ms !important; transition-delay: 0s !important; }
+  html { scroll-behavior: auto; }
+  .revela, .momento, .desfecho, .pronto { opacity: 1; transform: none; }
+}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="simbolo" viewBox="180 150 920 920">
+      <path d="M 678 282 A 375 375 0 1 0 968 568" fill="none" stroke="currentColor" stroke-width="59" stroke-linecap="round"/>
+      <g fill="currentColor">
+        <path fill-rule="evenodd" d="M 381 809 L 506 475 H 585 L 703 809 H 631 L 609 745 H 477 L 454 809 Z M 498 685 H 589 L 545 553 Z"/>
+        <path d="M 739 475 H 807 V 809 H 739 Z"/>
+      </g>
+      <path fill="currentColor" d="M 882 167 C 892 167 896 176 898 190 C 917 283 962 329 1056 343 C 1070 345 1078 352 1078 361 C 1078 370 1070 376 1056 379 C 963 396 914 444 898 536 C 895 550 889 558 882 558 C 872 558 867 549 865 535 C 850 445 802 396 709 379 C 694 376 685 370 685 361 C 685 351 694 345 708 343 C 802 326 850 280 865 190 C 868 176 873 167 882 167 Z"/>
+    </symbol>
+    <symbol id="anel-fundo" viewBox="180 150 920 920">
+      <path d="M 678 282 A 375 375 0 1 0 968 568" fill="none" stroke="currentColor" stroke-width="59" stroke-linecap="round"/>
+      <path fill="currentColor" d="M 882 167 C 892 167 896 176 898 190 C 917 283 962 329 1056 343 C 1070 345 1078 352 1078 361 C 1078 370 1070 376 1056 379 C 963 396 914 444 898 536 C 895 550 889 558 882 558 C 872 558 867 549 865 535 C 850 445 802 396 709 379 C 694 376 685 370 685 361 C 685 351 694 345 708 343 C 802 326 850 280 865 190 C 868 176 873 167 882 167 Z"/>
+    </symbol>
+    <symbol id="i-whats" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.7.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.2-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6a2.7 2.7 0 0 0 1.8-1.3 2.2 2.2 0 0 0 .2-1.3c-.1-.1-.3-.2-.5-.3Z"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" d="m5 12.5 4.5 4.5L19 7.5"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" d="M7 7l10 10M17 7 7 17"/></symbol>
+    <symbol id="i-escudo" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M12 3 4.5 6v5.5c0 4.6 3.2 8.4 7.5 9.5 4.3-1.1 7.5-4.9 7.5-9.5V6Z"/><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="m8.8 12.2 2.3 2.3 4.2-4.4"/></symbol>
+  </defs>
+</svg>
+
+<!-- ================================================================ topo + herói -->
+<div class="palco" id="inicio">
+  <svg class="palco-fundo" style="right:-28vw;top:-12%" aria-hidden="true"><use href="#anel-fundo"/></svg>
+  <div class="palco-brilho" style="left:50%;top:46%;transform:translate(-50%,0)"></div>
+
+  <header class="topo" id="topo">
+    <div class="envoltorio">
+      <a class="marca" href="#inicio" aria-label="AI PRO Janete, início">
+        <svg class="simbolo" aria-hidden="true"><use href="#simbolo"/></svg>
+        <span class="marca-nome"><span class="marca-autor">AI PRO</span><span class="marca-produto">Janete</span></span>
+      </a>
+      <nav aria-label="Seções">
+        <a href="#problema">O problema</a>
+        <a href="#painel">O painel</a>
+        <a href="#como-funciona">Como funciona</a>
+        <a href="#investimento">Investimento</a>
+        <a href="#perguntas">Perguntas</a>
+      </nav>
+      <a class="botao botao-principal" data-whats href="#contato"><svg aria-hidden="true"><use href="#i-whats"/></svg><span>Falar com a Janete</span></a>
+    </div>
+    <div class="progresso" id="progresso"></div>
+  </header>
+
+  <section class="envoltorio heroi">
+    <span class="rotulo">Atendente de IA para o WhatsApp do seu comércio</span>
+    <h1>Cliente que espera resposta <span class="destaque-laranja">compra no concorrente.</span></h1>
+    <p>A Janete responde o seu WhatsApp em segundos, de dia, de noite e no domingo. Ela tira as dúvidas, descobre quem quer comprar e entrega o cliente pronto para a sua equipe fechar.</p>
+    <div class="acoes">
+      <a class="botao botao-principal" data-whats href="#contato"><svg aria-hidden="true"><use href="#i-whats"/></svg>Falar com a Janete agora</a>
+      <a class="botao botao-contorno" href="#problema">Ver o que você está perdendo</a>
+    </div>
+    <ul class="garantias">
+      <li><svg aria-hidden="true"><use href="#i-check"/></svg>No ar em até 7 dias</li>
+      <li><svg aria-hidden="true"><use href="#i-check"/></svg>Garantia de 30 dias</li>
+      <li><svg aria-hidden="true"><use href="#i-check"/></svg>Tudo no nome do seu comércio</li>
+    </ul>
+  </section>
+
+  <div class="envoltorio">
+    <div class="cena-moldura" id="moldura">
+      <div class="cena" id="cena" aria-label="Simulação: a Janete atendendo no WhatsApp enquanto o painel organiza o cliente">
+        <!-- o painel da Janete -->
+        <div class="painel" aria-hidden="true">
+          <div class="janela-barra">
+            <span class="pontos"><i></i><i></i><i></i></span>
+            <span class="url">janete.seucomercio.com.br/app/kanban</span>
+          </div>
+          <div class="painel-corpo">
+            <div class="lateral">
+              <svg class="simbolo"><use href="#simbolo"/></svg>
+              <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 13h6V4H4zM14 20h6v-9h-6zM14 4h6v4h-6zM4 20h6v-3H4z"/></svg></span>
+              <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M4 5h16v11H9l-5 4z"/></svg></span>
+              <span class="ativo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="5" height="16" rx="1.5"/><rect x="10" y="4" width="5" height="11" rx="1.5"/><rect x="17" y="4" width="4" height="7" rx="1.5"/></svg></span>
+              <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="8" r="3.5"/><path d="M3 20a6 6 0 0 1 12 0M16 4.5a3.5 3.5 0 0 1 0 7M18 14a5 5 0 0 1 3 5"/></svg></span>
+              <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 4h11l3 3v13H5z"/><path d="M9 10h6M9 14h6"/></svg></span>
+            </div>
+            <div class="area">
+              <div class="area-topo">
+                <strong>Kanban</strong>
+                <div class="kpis">
+                  <div class="kpi"><small>Respostas hoje</small><b id="kpi-respostas">141</b></div>
+                  <div class="kpi"><small>Tempo médio</small><b>12 s</b></div>
+                  <div class="kpi"><small>Para a equipe</small><b id="kpi-equipe">8</b></div>
+                </div>
+              </div>
+              <div class="colunas">
+                <div class="coluna"><div class="coluna-cabeca">Novo <em data-conta="novo">2</em></div><div class="lista" id="col-novo">
+                  <div class="card"><span class="av ceu">JP</span><b>João Pedro</b><small>Vocês abrem no sábado?</small><span class="selo s-janete">Janete respondendo</span></div>
+                  <div class="card"><span class="av menta">FL</span><b>Fernanda Lima</b><small>Aceitam Pix?</small><span class="selo">respondida em 11 s</span></div>
+                  <div class="card"><span class="av lilas">CR</span><b>Carlos Rocha</b><small>Qual o endereço?</small><span class="selo">respondida em 9 s</span></div>
+                </div></div>
+                <div class="coluna"><div class="coluna-cabeca">Em qualificação <em data-conta="qualificacao">1</em></div><div class="lista" id="col-qualificacao">
+                  <div class="card"><span class="av areia">RM</span><b>Rafael Moura</b><small>Quer saber do pacote</small><span class="selo s-janete">Janete conversando</span></div>
+                  <div class="card"><span class="av ceu">DM</span><b>Daniela Melo</b><small>Mandou um áudio</small><span class="selo s-janete">áudio entendido</span></div>
+                  <div class="card"><span class="av rosa">GS</span><b>Gustavo Silva</b><small>Quer para sábado</small><span class="selo s-janete">Janete conversando</span></div>
+                </div></div>
+                <div class="coluna"><div class="coluna-cabeca">Qualificado <em data-conta="qualificado">1</em></div><div class="lista" id="col-qualificado">
+                  <div class="card"><span class="av lilas">BS</span><b>Beatriz Souza</b><small>Depilação a laser</small><span class="selo s-pronto">pronta para fechar</span></div>
+                  <div class="card"><span class="av menta">VA</span><b>Vitor Araújo</b><small>Pacote de 5 sessões</small><span class="selo s-pronto">pronto para fechar</span></div>
+                </div></div>
+                <div class="coluna"><div class="coluna-cabeca">Em negociação <em data-conta="negociacao">2</em></div><div class="lista" id="col-negociacao">
+                  <div class="card"><span class="av ceu">LA</span><b>Lúcia Alves</b><small>Combo de 3 sessões</small><span class="selo s-equipe">com Carla</span></div>
+                  <div class="card"><span class="av areia">PR</span><b>Paulo Reis</b><small>Pacote para casal</small><span class="selo s-equipe">com Diego</span></div>
+                  <div class="card"><span class="av lilas">IF</span><b>Isabela Freitas</b><small>Presente de aniversário</small><span class="selo s-equipe">com Carla</span></div>
+                </div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- o telefone -->
+        <div class="telefone">
+          <div class="tela">
+            <div class="tela-topo">
+              <span class="avatar"><svg class="simbolo" aria-hidden="true"><use href="#simbolo"/></svg></span>
+              <div><strong>Studio Bella Estética</strong><span id="estado">online</span></div>
+            </div>
+            <div class="conversa" id="conversa"></div>
+          </div>
+        </div>
+
+        <div class="selo-tempo" aria-hidden="true"><strong>22:47</strong><span>respondido em 12 s</span></div>
+        <div class="mini-etapa" id="mini-etapa" aria-hidden="true"><small>Mariana no painel</small><b id="mini-etapa-texto">Novo</b></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="faixa" aria-label="Para quem é">
+    <div class="faixa-trilho">
+      <span>Clínicas</span><span>Estética</span><span>Salões de beleza</span><span>Pet shops</span><span>Lojas</span><span>Oficinas</span><span>Imobiliárias</span><span>Escolas e cursos</span><span>Academias</span><span>Assistência técnica</span>
+      <span>Clínicas</span><span>Estética</span><span>Salões de beleza</span><span>Pet shops</span><span>Lojas</span><span>Oficinas</span><span>Imobiliárias</span><span>Escolas e cursos</span><span>Academias</span><span>Assistência técnica</span>
+    </div>
+  </div>
+</div>
+
+<main>
+
+<!-- ================================================================ dor -->
+<section class="secao" id="problema">
+  <div class="envoltorio">
+    <div class="cabeca-secao centro revela">
+      <span class="rotulo">O problema</span>
+      <h2>A mesma pergunta. Duas noites. <span class="destaque-laranja">Um cliente perdido.</span></h2>
+      <p>Toda semana alguém manda mensagem fora do horário. O que acontece depois decide se ele compra de você ou do concorrente.</p>
+    </div>
+
+    <div class="noite" id="noite">
+      <div class="trilha sem">
+        <div class="trilha-cabeca"><h3>Sem a Janete</h3><span class="marcador">como é hoje</span></div>
+        <div class="momento" style="transition-delay:.1s"><time>22:47</time><span class="fala cliente">Oi! Quanto custa a limpeza de pele?</span></div>
+        <div class="momento" style="transition-delay:.5s"><time>22:47</time><span class="fala vazio">sem resposta, todo mundo já foi embora</span></div>
+        <div class="momento" style="transition-delay:.9s"><time>23:05</time><span class="fala cliente">Vou ver em outro lugar.</span></div>
+        <div class="momento" style="transition-delay:1.3s"><time>08:32</time><span class="fala voce">Bom dia! Ainda tem interesse?</span></div>
+        <div class="momento" style="transition-delay:1.7s"><time>08:41</time><span class="fala cliente">Já fechei em outro lugar, obrigada.</span></div>
+        <div class="desfecho" style="transition-delay:2.1s"><svg aria-hidden="true"><use href="#i-x"/></svg>Cliente perdido para o concorrente</div>
+      </div>
+      <div class="trilha com">
+        <div class="trilha-cabeca"><h3>Com a Janete</h3><span class="marcador">em até 7 dias</span></div>
+        <div class="momento" style="transition-delay:.1s"><time>22:47</time><span class="fala cliente">Oi! Quanto custa a limpeza de pele?</span></div>
+        <div class="momento" style="transition-delay:.5s"><time>22:47</time><span class="fala janete">Oi! A limpeza profunda sai por R$ 180. Você já fez alguma vez?</span></div>
+        <div class="momento" style="transition-delay:.9s"><time>22:49</time><span class="fala janete">Entendeu o áudio da cliente e descobriu que ela quer agendar.</span></div>
+        <div class="momento" style="transition-delay:1.3s"><time>08:00</time><span class="fala voce">Você abre o painel: Mariana, pronta para agendar.</span></div>
+        <div class="momento" style="transition-delay:1.7s"><time>08:06</time><span class="fala cliente">Perfeito, hoje às 15h então!</span></div>
+        <div class="desfecho" style="transition-delay:2.1s"><svg aria-hidden="true"><use href="#i-check"/></svg>Cliente ganho antes do café</div>
+      </div>
+    </div>
+
+    <div class="dor-fecho">
+      <div class="dor-item revela"><strong>Toda noite</strong><p>chegam mensagens que ninguém responde até a manhã seguinte. É quando o cliente está com o celular na mão, decidindo.</p></div>
+      <div class="dor-item revela" style="--atraso:.1s"><strong>Todo dia</strong><p>a mesma pergunta: preço, horário, endereço, se aceita Pix. Sua equipe gasta o dia respondendo o que respondeu ontem.</p></div>
+      <div class="dor-item revela" style="--atraso:.2s"><strong>Ninguém sabe</strong><p>quantos clientes sumiram. A conversa fica espalhada no celular de cada um, e o cliente pronto para comprar se perde no meio.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================================ desejo -->
+<section class="secao" style="padding-top:0">
+  <div class="envoltorio manha">
+    <div class="cabeca-secao revela">
+      <span class="rotulo">Imagine amanhã de manhã</span>
+      <h2>Você chega e a sua equipe já sabe com quem falar.</h2>
+      <p>A Janete trabalhou a noite toda. Você abre o painel e encontra o resumo pronto: quem foi atendido, quem está pronto para fechar e quem precisa de alguém.</p>
+      <ul class="ganhos">
+        <li><svg aria-hidden="true"><use href="#i-check"/></svg><span><strong>Nenhum cliente esperando até amanhã.</strong> A Janete responde à noite, no domingo e no feriado, enquanto estiver no ar.</span></li>
+        <li><svg aria-hidden="true"><use href="#i-check"/></svg><span><strong>A equipe só fala com quem quer comprar.</strong> As perguntas repetidas ficam com a Janete.</span></li>
+        <li><svg aria-hidden="true"><use href="#i-check"/></svg><span><strong>Você vê tudo num lugar só.</strong> Sem pedir o celular de ninguém para saber o que aconteceu.</span></li>
+      </ul>
+    </div>
+    <div class="resumo revela" id="resumo" style="--atraso:.1s">
+      <div class="resumo-cabeca"><strong>Enquanto você dormia</strong><span>exemplo · 22h às 8h</span></div>
+      <div class="numeros">
+        <div class="numero"><b data-conta-ate="37">0</b><small>conversas atendidas</small></div>
+        <div class="numero"><b data-conta-ate="12" data-sufixo=" s">0</b><small>tempo médio de resposta</small></div>
+        <div class="numero forte"><b data-conta-ate="9">0</b><small>prontos para fechar</small></div>
+        <div class="numero"><b data-conta-ate="0">0</b><small>sem resposta</small></div>
+      </div>
+      <div class="prontos">
+        <small>Prontos para a equipe</small>
+        <div class="pronto" style="transition-delay:.3s"><span class="av" style="background:var(--rosa)">MC</span><div><b>Mariana Costa</b><small>Limpeza de pele, primeira vez</small></div><em>quer agendar</em></div>
+        <div class="pronto" style="transition-delay:.45s"><span class="av" style="background:var(--areia)">TG</span><div><b>Tiago Gomes</b><small>Pacote de 5 sessões</small></div><em>pediu valores</em></div>
+        <div class="pronto" style="transition-delay:.6s"><span class="av" style="background:var(--menta)">AN</span><div><b>Ana Nogueira</b><small>Presente para a mãe</small></div><em>quer fechar</em></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================================ o que faz -->
+<section class="secao" style="padding-top:0">
+  <div class="envoltorio">
+    <div class="cabeca-secao lado revela">
+      <span class="rotulo">O que a Janete faz</span>
+      <h2>Uma atendente que conhece o seu negócio e nunca sai do WhatsApp.</h2>
+      <p>Ela atende com o que você ensina: preços, horários e o seu jeito de falar. A gente configura com você, e depois você ajusta sozinho no painel.</p>
+    </div>
+    <div class="bento">
+      <article class="peca larga escura revela">
+        <h3>Responde em segundos, 24 horas</h3>
+        <p>As mensagens não escolhem horário. A Janete responde todas, inclusive as que chegam depois que a loja fecha.</p>
+        <div class="ilustra">
+          <div class="relogio-24" id="relogio-24"></div>
+          <div class="relogio-24-legenda"><span>0h</span><span>6h</span><span>12h</span><span>18h</span><span>23h</span></div>
+        </div>
+      </article>
+      <article class="peca larga revela" style="--atraso:.1s">
+        <h3>Entende áudio</h3>
+        <p>O cliente manda mensagem de voz e a Janete entende e responde, sem ninguém precisar parar para ouvir.</p>
+        <div class="ilustra">
+          <div class="ondas-grandes" id="ondas"></div>
+          <div class="transcricao">"Oi, é a primeira vez que eu faço, minha pele é bem oleosa..."</div>
+        </div>
+      </article>
+      <article class="peca media revela">
+        <h3>Conhece o seu negócio</h3>
+        <p>Preços, horários, endereço, pagamento e entrega, no tom do seu atendimento. Você muda tudo no painel, com histórico para voltar atrás.</p>
+        <div class="ilustra chips"><span class="on">Preços</span><span>Horários</span><span class="on">Pix e cartão</span><span>Endereço</span><span>Entrega</span><span class="on">Promoções</span></div>
+      </article>
+      <article class="peca media revela" style="--atraso:.1s">
+        <h3>Separa quem quer comprar</h3>
+        <p>Descobre o que a pessoa precisa e diferencia o curioso de quem está pronto.</p>
+        <div class="ilustra funil"><div><span>Mensagens</span><b>120</b></div><div><span>Interessados</span><b>48</b></div><div><span>Prontos</span><b>15</b></div></div>
+      </article>
+      <article class="peca media revela" style="--atraso:.2s">
+        <h3>Entrega para a equipe</h3>
+        <p>Quando o cliente quer fechar, pede uma pessoa ou reclama, a conversa aparece primeiro na lista “Precisam de você”, com o resumo do que foi falado. Qualquer pessoa da equipe assume com um clique.</p>
+        <div class="ilustra chips"><span class="on">Precisam de você</span><span>Resumo pronto</span><span>Assumir com 1 clique</span></div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================================ por dentro do painel -->
+<section class="secao" style="padding-top:0" id="painel">
+  <div class="envoltorio">
+    <div class="cabeca-secao lado revela">
+      <span class="rotulo">Por dentro da Janete</span>
+      <h2>Tudo o que acontece no WhatsApp, organizado num painel só.</h2>
+      <p>Estas são as telas de verdade do painel que você e a sua equipe vão usar, com dados de exemplo.</p>
+    </div>
+    <div class="revela">
+      <div class="vitrine-abas" role="tablist" aria-label="Telas do painel">
+        <button type="button" role="tab" id="aba-dashboard" aria-controls="tela-dashboard" aria-selected="true">Dashboard<span class="barra"></span></button>
+        <button type="button" role="tab" id="aba-chat" aria-controls="tela-chat" aria-selected="false">Chat da equipe<span class="barra"></span></button>
+      </div>
+      <div class="vitrine-janela">
+        <div class="janela-barra"><span class="pontos"><i></i><i></i><i></i></span><span class="url" id="vitrine-url">janete.seucomercio.com.br/app/dashboard</span></div>
+        <div class="vitrine-palco">
+          <div class="tela-app ativa" id="tela-dashboard" role="tabpanel" aria-labelledby="aba-dashboard" data-url="janete.seucomercio.com.br/app/dashboard">
+            <img src="telas/dashboard.webp" width="2000" height="650" alt="Dashboard da Janete: conversas que precisam da equipe, o funil do kanban e a saúde da plataforma" decoding="async">
+            <span class="ponto-quente" style="left:29.6%;top:27.5%">1</span>
+            <span class="ponto-quente" style="left:68.6%;top:29%">2</span>
+            <span class="ponto-quente" style="left:97.6%;top:29%">3</span>
+          </div>
+          <div class="tela-app" id="tela-chat" role="tabpanel" aria-labelledby="aba-chat" data-url="janete.seucomercio.com.br/app/chat">
+            <img src="telas/chat.webp" width="2000" height="1118" alt="Chat da Janete: lista de conversas com a etapa de cada cliente, a conversa e a ficha com o que a Janete descobriu" decoding="async">
+            <span class="ponto-quente" style="left:2.4%;top:19%">1</span>
+            <span class="ponto-quente" style="left:66%;top:4%">2</span>
+            <span class="ponto-quente" style="left:96%;top:9%">3</span>
+          </div>
+        </div>
+      </div>
+      <div class="vitrine-legendas">
+        <div class="legendas ativa" data-para="tela-dashboard">
+          <div class="legenda"><span>1</span><div><b>Quem precisa de você</b><p>As conversas que a Janete passou para a equipe aparecem primeiro, com um botão direto para o chat.</p></div></div>
+          <div class="legenda"><span>2</span><div><b>O funil de agora</b><p>Quantos clientes estão em cada etapa, do novo ao ganho, sem abrir planilha.</p></div></div>
+          <div class="legenda"><span>3</span><div><b>Saúde do sistema</b><p>O painel mostra se WhatsApp, inteligência artificial e áudio estão funcionando, e você pode conferir tudo quando quiser.</p></div></div>
+        </div>
+        <div class="legendas" data-para="tela-chat">
+          <div class="legenda"><span>1</span><div><b>Cada cliente com a sua etapa</b><p>A lista mostra todas as conversas e em que ponto do funil cada cliente está.</p></div></div>
+          <div class="legenda"><span>2</span><div><b>Assuma quando quiser</b><p>A Janete atende sozinha, e qualquer pessoa da equipe assume a conversa com um clique. Quando alguém responde, ela deixa a conversa com a pessoa.</p></div></div>
+          <div class="legenda"><span>3</span><div><b>O que ela já descobriu</b><p>A ficha resume o cliente: o que ele quer, quanto e para quando. Ninguém precisa ler a conversa inteira.</p></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================================ objeções -->
+<section class="secao" style="padding-top:0" id="duvidas">
+  <div class="envoltorio">
+    <div class="cabeca-secao centro revela">
+      <span class="rotulo">Você deve estar pensando</span>
+      <h2>Dúvidas que todo dono de comércio tem</h2>
+    </div>
+    <div class="objecoes">
+      <article class="objecao revela">
+        <blockquote>Meu cliente prefere falar com uma pessoa.</blockquote>
+        <p>Ele prefere ser respondido. A Janete responde na hora e, quando o cliente pede uma pessoa, reclama ou quer fechar, passa para a sua equipe com o resumo da conversa.</p>
+        <div class="prova"><svg aria-hidden="true"><use href="#i-check"/></svg><span>A pessoa da sua equipe continua no atendimento. Só deixa de responder a mesma pergunta o dia todo.</span></div>
+      </article>
+      <article class="objecao revela" style="--atraso:.1s">
+        <blockquote>Já tentei chatbot e foi ruim.</blockquote>
+        <p>Chatbot de menu e resposta automática mandam o mesmo texto para todo mundo ou fazem o cliente digitar 1, 2, 3. A Janete entende o que ele escreveu, ou falou em áudio, e responde aquilo.</p>
+        <div class="prova"><svg aria-hidden="true"><use href="#i-check"/></svg><span>Fale com a Janete no WhatsApp e julgue você mesmo.</span></div>
+      </article>
+      <article class="objecao revela">
+        <blockquote>E se ela falar alguma besteira?</blockquote>
+        <p>Ela responde com o que está no contexto do seu negócio: preços, horários e promoções que você aprovou. O que ela responde depende desse treinamento, e é normal precisar de ajustes quando as primeiras conversas reais chegam.</p>
+        <div class="prova"><svg aria-hidden="true"><use href="#i-check"/></svg><span>Você corrige sozinho no painel, e nos 30 dias de garantia a gente revisa as conversas com você.</span></div>
+      </article>
+      <article class="objecao revela" style="--atraso:.1s">
+        <blockquote>E se eu pagar e não funcionar?</blockquote>
+        <p>Você tem 30 dias de garantia. Nesse período a gente revisa as conversas reais e ajusta o contexto até a Janete atender como combinado.</p>
+        <div class="prova"><svg aria-hidden="true"><use href="#i-check"/></svg><span>E antes de ir ao ar você testa a Janete no WhatsApp.</span></div>
+      </article>
+      <article class="objecao revela">
+        <blockquote>Meu número pode ser bloqueado?</blockquote>
+        <p>O risco é bem menor na conexão oficial da Meta, e é a que recomendamos. A Janete também funciona com Z-API e Evolution, que não são oficiais e têm mais risco. Antes de ligar, explicamos as diferenças e você escolhe.</p>
+        <div class="prova"><svg aria-hidden="true"><use href="#i-escudo"/></svg><span>Você decide com a informação na mão, antes de conectar o número.</span></div>
+      </article>
+      <article class="objecao revela" style="--atraso:.1s">
+        <blockquote>Meu cliente vai saber que é uma IA?</blockquote>
+        <p>Você decide. A atendente pode ter o nome que quiser, e você define no contexto como ela se apresenta. Recomendamos que ela se apresente como assistente virtual do seu comércio. AI PRO Janete é o nome do sistema.</p>
+        <div class="prova"><svg aria-hidden="true"><use href="#i-check"/></svg><span>Sempre que o cliente pede uma pessoa, ela passa para a sua equipe.</span></div>
+      </article>
+      <article class="objecao revela">
+        <blockquote>Não entendo nada de tecnologia.</blockquote>
+        <div>
+          <p>Nem precisa. A instalação, a configuração e os testes ficam com a gente. Você participa de duas conversas de uma hora, e a sua parte é só esta:</p>
+          <ul class="custos">
+            <li><b>Contar como o seu comércio funciona:</b> preços, horários e o jeito que você atende.</li>
+            <li><b>Criar as contas com a gente guiando:</b> servidor, inteligência artificial e WhatsApp.</li>
+            <li><b>Testar a Janete antes de ir ao ar</b> e dizer o que precisa ajustar.</li>
+          </ul>
+        </div>
+        <div class="prova"><svg aria-hidden="true"><use href="#i-check"/></svg><span>As contas ficam no seu nome: entregamos um passo a passo e fazemos junto.</span></div>
+      </article>
+      <article class="objecao revela" style="--atraso:.1s">
+        <blockquote>Deve ser caro.</blockquote>
+        <div>
+          <p>Além dos R$ 3.500 de implementação, você paga só a estrutura, direto aos fornecedores. A gente guia e orienta você em cada contratação.</p>
+          <ul class="custos">
+            <li><b>Servidor (VPS):</b> um computador na nuvem, em média R$ 45 por mês.</li>
+            <li><b>Inteligência artificial:</b> cobrada pelo uso.</li>
+            <li><b>WhatsApp, você escolhe:</b> Z-API, R$ 99 por mês. Evolution API, gratuita, mas a instalação no seu servidor é um serviço cobrado à parte (consulte o nosso time). Ou a API oficial da Meta, que tem limites e custos por mensagem enviada.</li>
+          </ul>
+        </div>
+        <div class="prova"><svg aria-hidden="true"><use href="#i-check"/></svg><span>Implementação paga uma vez, em até 3 vezes sem juros, com garantia de 30 dias.</span></div>
+      </article>
+    </div>
+    <div class="cta-linha revela">
+      <p>Ficou com alguma dúvida? Pergunte direto para a Janete, a qualquer hora.</p>
+      <a class="botao botao-principal" data-whats href="#contato"><svg aria-hidden="true"><use href="#i-whats"/></svg>Falar com a Janete</a>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================================ como funciona -->
+<section class="secao" style="padding-top:0" id="como-funciona">
+  <div class="envoltorio">
+    <div class="cabeca-secao lado revela">
+      <span class="rotulo">Como funciona</span>
+      <h2>Em até 7 dias ela está atendendo. A gente guia você em cada passo.</h2>
+      <p>A instalação e a configuração são com a gente. Você participa de duas conversas em que ajudamos você a criar as contas (servidor, inteligência artificial e WhatsApp) com o nosso passo a passo. O prazo conta a partir da conversa inicial e das contas criadas.</p>
+    </div>
+    <ol class="tempo" id="tempo">
+      <span class="tempo-linha" aria-hidden="true"></span>
+      <li class="etapa"><span class="bola">1</span><span class="dia">Dia 1</span><h3>Conversa inicial</h3><p>Uma hora para entender o seu comércio e as perguntas mais comuns.</p><span class="voce">com você</span></li>
+      <li class="etapa"><span class="bola">2</span><span class="dia">Dias 2 e 3</span><h3>Configuração</h3><p>Instalamos a Janete e escrevemos o contexto dela com o jeito do seu negócio.</p></li>
+      <li class="etapa"><span class="bola">3</span><span class="dia">Dia 4</span><h3>WhatsApp conectado</h3><p>Ligamos a Janete ao número do seu comércio pela conexão que fizer mais sentido: Meta oficial, Z-API ou Evolution.</p></li>
+      <li class="etapa"><span class="bola">4</span><span class="dia">Dias 5 e 6</span><h3>Testes</h3><p>Simulamos conversas reais e ajustamos até ficar do seu jeito.</p></li>
+      <li class="etapa"><span class="bola">5</span><span class="dia">Dia 7</span><h3>Treinamento e no ar</h3><p>Uma hora com a equipe, e a Janete começa a atender.</p><span class="voce">com você</span></li>
+      <li class="etapa"><span class="bola">6</span><span class="dia">30 dias no ar</span><h3>Garantia e ajustes</h3><p>Revisamos as conversas reais com você e ajustamos o que aparecer, dentro da garantia de 30 dias.</p></li>
+    </ol>
+  </div>
+</section>
+
+<!-- ================================================================ é seu -->
+<section class="palco">
+  <svg class="palco-fundo" style="right:-22vw;bottom:-55%;width:min(900px,90vw)" aria-hidden="true"><use href="#anel-fundo"/></svg>
+  <div class="envoltorio seu secao" style="position:relative;z-index:1">
+    <div class="cabeca-secao revela">
+      <span class="rotulo" style="color:var(--laranja)">A diferença</span>
+      <h2>É seu. <span class="destaque-laranja">Não é aluguel.</span></h2>
+      <p>A Janete roda no servidor do seu comércio, com as contas no seu nome. Se um dia você parar o suporte, ela continua atendendo, enquanto o servidor, a inteligência artificial e o WhatsApp estiverem pagos.</p>
+    </div>
+    <div class="comparacao revela" style="--atraso:.1s">
+      <table>
+        <thead><tr><th scope="col"></th><th scope="col" class="destaque">Janete</th><th scope="col">Ferramenta por assinatura</th></tr></thead>
+        <tbody>
+          <tr><td>De quem é o sistema</td><td class="destaque">do seu comércio</td><td>da empresa que aluga</td></tr>
+          <tr><td>Mensalidade para a agência</td><td class="destaque">nenhuma, o suporte é opcional</td><td>obrigatória, todo mês</td></tr>
+          <tr><td>Suas conversas</td><td class="destaque">no seu servidor</td><td>no servidor deles</td></tr>
+          <tr><td>Se você cancelar o suporte</td><td class="destaque">continua funcionando</td><td>para de atender</td></tr>
+          <tr><td>Quem configura</td><td class="destaque">a gente, do seu jeito</td><td>geralmente você</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================================ calculadora -->
+<section class="secao" id="conta">
+  <div class="envoltorio">
+    <div class="cabeca-secao lado revela">
+      <span class="rotulo">Faça a conta</span>
+      <h2>Quanto custa, por mês, o cliente que ninguém respondeu?</h2>
+      <p>Coloque os números do seu comércio. A conta é sua, não nossa, e é uma estimativa, não uma promessa de resultado.</p>
+    </div>
+    <div class="calculadora revela">
+      <div class="calc-campos">
+        <div class="campo">
+          <label for="ticket">Valor médio de um cliente <output id="ticket-saida">R$ 150</output></label>
+          <input type="range" id="ticket" min="30" max="2000" step="10" value="150">
+          <small>Quanto, em média, um cliente gasta com você.</small>
+        </div>
+        <div class="campo">
+          <label for="perdidos">Clientes perdidos por semana <output id="perdidos-saida">5</output></label>
+          <input type="range" id="perdidos" min="1" max="40" step="1" value="5">
+          <small>Quem perguntou, não teve resposta a tempo e não voltou.</small>
+        </div>
+        <div class="campo">
+          <label for="recupera">Quantos a Janete recupera <output id="recupera-saida">30%</output></label>
+          <input type="range" id="recupera" min="10" max="100" step="10" value="30">
+          <small>Seja conservador: comece com poucos.</small>
+        </div>
+      </div>
+      <div class="calc-resultado" aria-live="polite">
+        <div class="palco-brilho" style="right:-450px;top:-450px"></div>
+        <p>Hoje você deixa de vender, por mês, cerca de</p>
+        <span class="valor" id="perda">R$ 3.225</span>
+        <div class="calc-linhas">
+          <div><span>Recuperado com a Janete</span><strong id="recuperado">R$ 968/mês</strong></div>
+          <div><span>Estrutura mensal (fornecedores)</span><strong>até R$ 170/mês</strong></div>
+          <div><span>Implementação (paga uma vez)</span><strong>R$ 3.500</strong></div>
+          <div class="final"><span>A Janete se paga em</span><strong id="retorno">cerca de 5 meses</strong></div>
+        </div>
+        <p class="calc-nota">Conta feita com faturamento, não lucro. Considere a sua margem.</p>
+      </div>
+    </div>
+    <div class="cta-linha revela">
+      <p>Quer ver essa conta com os seus números? A Janete conversa com você agora, a qualquer hora.</p>
+      <a class="botao botao-principal" id="cta-conta" href="#contato"><svg aria-hidden="true"><use href="#i-whats"/></svg>Mandar a minha conta para a Janete</a>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================================ investimento -->
+<section class="secao" style="padding-top:0" id="investimento">
+  <div class="envoltorio">
+    <div class="cabeca-secao lado revela">
+      <span class="rotulo">Investimento</span>
+      <h2>Você paga a implementação uma vez. A Janete é sua.</h2>
+      <p>Depois, cada serviço da estrutura é pago direto ao fornecedor, no nome do seu comércio.</p>
+    </div>
+    <div class="preco">
+      <div class="preco-principal revela">
+        <div class="palco-brilho" style="left:-420px;bottom:-520px"></div>
+        <span class="rotulo">Implementação completa</span>
+        <div class="preco-valor"><strong>R$ 3.500</strong><span>pagamento único, em até 3 vezes sem&nbsp;juros</span></div>
+        <ul>
+          <li><svg aria-hidden="true"><use href="#i-check"/></svg>Instalação no servidor do seu comércio, com HTTPS e backup diário</li>
+          <li><svg aria-hidden="true"><use href="#i-check"/></svg>Contexto, tom de atendimento e regras de passagem para a equipe</li>
+          <li><svg aria-hidden="true"><use href="#i-check"/></svg>WhatsApp conectado, testes e treinamento da equipe</li>
+          <li><svg aria-hidden="true"><use href="#i-check"/></svg>Garantia de 30 dias: ajustes com as conversas reais até ficar como combinado</li>
+        </ul>
+        <div class="acoes"><a class="botao botao-principal" data-whats href="#contato"><svg aria-hidden="true"><use href="#i-whats"/></svg>Quero a Janete no meu comércio</a></div>
+      </div>
+      <div class="preco-lado">
+        <div class="caixa revela" style="--atraso:.1s">
+          <span class="rotulo">Estrutura, paga aos fornecedores</span>
+          <strong>R$ 60 a R$ 170 por mês</strong>
+          <p>Servidor (em média R$ 45 por mês) e inteligência artificial, para um comércio local. O WhatsApp depende da conexão: Z-API, R$ 99 por mês; Evolution, gratuita, com instalação cobrada à parte; ou Meta oficial, com custo por mensagem.</p>
+        </div>
+        <div class="caixa revela" style="--atraso:.2s">
+          <span class="rotulo">Suporte mensal, opcional</span>
+          <strong>R$ 197 por mês</strong>
+          <p>Atualizações e ajuda por WhatsApp em horário comercial, sem plantão de madrugada. Você edita o contexto sozinho no painel, e a gente faz até 2 ajustes por mês. Sem fidelidade.</p>
+        </div>
+        <div class="caixa seguranca revela" style="--atraso:.3s">
+          <span class="rotulo">Garantia de 30 dias e sem ficar preso</span>
+          <p>Por 30 dias a gente ajusta a Janete com as conversas reais até ela atender como combinado. Tudo fica no nome do seu comércio desde o primeiro dia, e se parar o suporte ela continua funcionando.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================================ perguntas -->
+<section class="secao" style="padding-top:0" id="perguntas">
+  <div class="envoltorio">
+    <div class="cabeca-secao centro revela">
+      <span class="rotulo">Perguntas frequentes</span>
+      <h2>Ainda ficou alguma dúvida?</h2>
+    </div>
+    <div class="perguntas revela">
+      <details><summary>Tem garantia?</summary><p>Tem, de 30 dias. Nesse período a gente revisa as conversas reais com você e ajusta a Janete até ela atender como combinado. Antes de ir ao ar, você testa a Janete no WhatsApp.</p></details>
+      <details><summary>Quem cuida se algo parar?</summary><p>O painel mostra se o WhatsApp, a inteligência artificial e o áudio estão funcionando. O suporte mensal ajuda por WhatsApp em horário comercial. Não temos suporte de madrugada.</p></details>
+      <details><summary>Posso mudar preço, promoção e horário sozinho?</summary><p>Pode. Você edita no painel e o sistema guarda o histórico, para voltar a uma versão anterior quando quiser. Se preferir, o suporte faz até 2 ajustes por mês.</p></details>
+      <details><summary>Preciso trocar o número do WhatsApp?</summary><p>Não precisa ser um número novo. Na conversa inicial vemos qual número do comércio a Janete vai usar, como ele convive com o celular (isso depende da conexão: Meta oficial, Z-API ou Evolution) e como conectar. Quando alguém da equipe responde pelo celular, a Janete deixa aquela conversa com a pessoa.</p></details>
+      <details><summary>Onde ficam as conversas dos meus clientes?</summary><p>No banco de dados do servidor do seu comércio, contratado no seu nome. O texto das mensagens também passa pela empresa de inteligência artificial que você contratar e pela conexão de WhatsApp escolhida. A Janete só pede os dados que você configurar.</p></details>
+      <details><summary>O que acontece fora do horário, se ninguém da equipe estiver?</summary><p>A Janete continua atendendo. Se o cliente pede uma pessoa, ela avisa quando a equipe volta (com o horário de atendimento cadastrado) e a conversa fica na lista “Precisam de você” até alguém assumir. Hoje esse aviso aparece no painel, não por mensagem para a equipe.</p></details>
+      <details><summary>E se o cliente mandar foto, figurinha ou comprovante?</summary><p>Ela lê fotos. Documentos, vídeos e figurinhas ela não interpreta e, nesses casos, foi configurada para passar para a equipe. Confirmar pagamento é sempre com a sua equipe.</p></details>
+      <details><summary>A atendente pode ter outro nome?</summary><p>Pode. AI PRO Janete é o nome do sistema. No atendimento ela pode se chamar como você quiser, e você define no contexto como ela se apresenta.</p></details>
+      <details><summary>Preciso falar com meu sócio ou contador antes.</summary><p>Claro. Mande o link desta página para ele ou chame a Janete no WhatsApp: ela pode transferir a conversa para uma pessoa da nossa equipe, que conversa com vocês dois.</p></details>
+      <details><summary>Meu negócio é diferente, o preço depende de conversa.</summary><p>Sem problema. Quando o valor depende de avaliação ou orçamento, a Janete pergunta o que a pessoa precisa e passa a conversa para a sua equipe, sem inventar preço.</p></details>
+      <details><summary>A Janete substitui a minha equipe?</summary><p>Não. Ela tira da equipe as perguntas repetidas e entrega só quem está pronto para comprar. Alguém do seu comércio assume as conversas que ela passar.</p></details>
+      <details><summary>Ela agenda ou recebe pagamento sozinha?</summary><p>Hoje não. Ela atende, tira dúvidas, qualifica e passa o cliente para a equipe fechar, agendar ou cobrar. Como ela não mexe na sua agenda, não existe horário duplicado.</p></details>
+      <details><summary>E se eu quiser parar?</summary><p>O suporte mensal pode ser cancelado quando quiser, avisando com 30 dias, sem fidelidade. A Janete é sua e continua funcionando enquanto o servidor, a inteligência artificial e o WhatsApp estiverem pagos.</p></details>
+      <details><summary>Quanto tempo leva para começar?</summary><p>Até 7 dias depois da conversa inicial, desde que as contas do servidor, da inteligência artificial e do WhatsApp estejam criadas. Ajudamos nisso.</p></details>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- ================================================================ final -->
+<footer class="palco" id="contato">
+  <svg class="palco-fundo" style="left:50%;top:50%;transform:translate(-50%,-50%);width:min(980px,130vw)" aria-hidden="true"><use href="#anel-fundo"/></svg>
+  <div class="palco-brilho" style="left:50%;top:40%;transform:translate(-50%,-50%)"></div>
+  <div class="envoltorio final-corpo">
+    <span class="rotulo" style="color:var(--laranja)">Converse antes de decidir</span>
+    <h2>Mande uma mensagem. <span class="destaque-laranja">Quem vai te responder é a Janete.</span></h2>
+    <p>Pergunte o que quiser, a qualquer hora. É a Janete de verdade atendendo. Se você quiser falar com uma pessoa da nossa equipe, ela transfere a conversa.</p>
+    <a class="botao botao-principal" data-whats href="#contato"><svg aria-hidden="true"><use href="#i-whats"/></svg>Falar com a Janete no WhatsApp</a>
+  </div>
+  <div class="envoltorio rodape">
+    <span class="marca"><svg class="simbolo" aria-hidden="true"><use href="#simbolo"/></svg><span class="marca-nome"><span class="marca-autor">AI PRO</span><span class="marca-produto">Janete</span></span></span>
+    <span>AI PRO Revolution · Thiago Caliman</span>
+  </div>
+</footer>
+
+<script>
+(function () {
+  // Número do WhatsApp dos botões (só dígitos, com 55 e DDD). Vazio = os botões levam para o fim da página.
+  var WHATSAPP = '5511930524597';
+  var MENSAGEM = 'Oi, Janete! Quero saber como você pode atender o WhatsApp do meu comércio.';
+  if (WHATSAPP) {
+    var url = 'https://wa.me/' + WHATSAPP + '?text=' + encodeURIComponent(MENSAGEM);
+    document.querySelectorAll('[data-whats]').forEach(function (a) { a.href = url; a.target = '_blank'; a.rel = 'noopener'; });
+  }
+
+  var $ = function (id) { return document.getElementById(id); };
+  var parado = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var esperar = function (ms) { return new Promise(function (r) { setTimeout(r, ms); }); };
+
+  // ---------- topo: fundo ao rolar e barra de progresso
+  var topo = $('topo'), progresso = $('progresso');
+  function aoRolar() {
+    topo.classList.toggle('rolado', window.scrollY > 20);
+    var max = document.documentElement.scrollHeight - innerHeight;
+    progresso.style.transform = 'scaleX(' + (max > 0 ? window.scrollY / max : 0) + ')';
+  }
+  addEventListener('scroll', aoRolar, { passive: true });
+  aoRolar();
+
+  // ---------- cena: escala para caber
+  var moldura = $('moldura'), cena = $('cena');
+  function escalar() {
+    if (innerWidth <= 760) { moldura.style.height = ''; return; }
+    var s = Math.min(1, moldura.clientWidth / 1120);
+    cena.style.transform = 'scale(' + s + ')';
+    moldura.style.height = (660 * s) + 'px';
+    if (moldura.clientWidth > 1120) cena.style.marginLeft = ((moldura.clientWidth - 1120) / 2) + 'px';
+    else cena.style.marginLeft = '0';
+  }
+  addEventListener('resize', escalar);
+  escalar();
+
+  // ---------- cena: o card da Mariana andando no kanban (FLIP)
+  var cardMariana = null;
+  var colunas = { novo: $('col-novo'), qualificacao: $('col-qualificacao'), qualificado: $('col-qualificado'), negociacao: $('col-negociacao') };
+  var nomesEtapa = { novo: 'Novo', qualificacao: 'Em qualificação', qualificado: 'Qualificado', negociacao: 'Em negociação · Carla' };
+  function contar() {
+    Object.keys(colunas).forEach(function (k) {
+      var em = document.querySelector('[data-conta="' + k + '"]');
+      if (em) em.textContent = colunas[k].children.length;
+    });
+  }
+  function escalaAtual() { var m = /scale\(([\d.]+)\)/.exec(cena.style.transform); return m ? +m[1] : 1; }
+  function moverPara(etapa, selo, classeSelo) {
+    var mini = $('mini-etapa'), miniTexto = $('mini-etapa-texto');
+    miniTexto.textContent = nomesEtapa[etapa];
+    mini.classList.add('troca'); setTimeout(function () { mini.classList.remove('troca'); }, 400);
+    if (!cardMariana) {
+      cardMariana = document.createElement('div');
+      cardMariana.className = 'card vivo entra';
+      cardMariana.innerHTML = '<span class="av rosa">MC</span><b>Mariana Costa</b><small>Quanto custa a limpeza...</small><span class="selo"></span>';
+      colunas[etapa].prepend(cardMariana);
+    } else if (cardMariana.parentNode !== colunas[etapa]) {
+      var s = escalaAtual();
+      var antes = cardMariana.getBoundingClientRect();
+      cardMariana.classList.remove('entra');
+      colunas[etapa].prepend(cardMariana);
+      var depois = cardMariana.getBoundingClientRect();
+      var dx = (antes.left - depois.left) / s, dy = (antes.top - depois.top) / s;
+      if (cardMariana.animate && !parado) {
+        cardMariana.animate([
+          { transform: 'translate(' + dx + 'px,' + dy + 'px)' },
+          { transform: 'translate(' + dx * 0.5 + 'px,' + (dy * 0.5 - 18) + 'px) rotate(-3deg) scale(1.06)', offset: 0.5 },
+          { transform: 'none' }
+        ], { duration: 950, easing: 'cubic-bezier(0.65, 0, 0.35, 1)' });
+      }
+    }
+    var seloEl = cardMariana.querySelector('.selo');
+    seloEl.textContent = selo;
+    seloEl.className = 'selo ' + (classeSelo || '');
+    contar();
+  }
+  function kpi(id, valor) {
+    var b = $(id); b.textContent = valor; b.classList.add('pulsa');
+    setTimeout(function () { b.classList.remove('pulsa'); }, 900);
+  }
+
+  // ---------- cena: a conversa
+  var roteiro = [
+    { de: 'lead', t: 'Oi! Quanto custa a limpeza de pele?', h: '22:47', painel: function () { moverPara('novo', 'nova mensagem', ''); } },
+    { de: 'janete', t: 'Oi! A limpeza de pele profunda sai por R$ 180 e leva uns 70 minutos. Você já fez alguma vez?', h: '22:47', painel: function () { moverPara('qualificacao', 'respondida em 12 s', 's-janete'); kpi('kpi-respostas', 142); } },
+    { de: 'audio', h: '22:48', painel: function () { moverPara('qualificacao', 'áudio entendido', 's-janete'); } },
+    { de: 'janete', t: 'Entendi: primeira vez e pele oleosa. A profunda é a ideal. Quer que a Carla te passe os horários de amanhã?', h: '22:48', painel: function () { kpi('kpi-respostas', 143); } },
+    { de: 'lead', t: 'Quero sim!', h: '22:49', painel: function () { moverPara('qualificado', 'pronta para agendar', 's-pronto'); } },
+    { de: 'passagem', t: 'Conversa passada para a equipe · cliente pronta para agendar', painel: function () { moverPara('negociacao', 'com Carla', 's-equipe'); kpi('kpi-equipe', 9); } }
+  ];
+  var caixa = $('conversa'), estado = $('estado');
+  function onda() {
+    var s = '<span class="onda">';
+    [6, 12, 18, 10, 16, 22, 14, 8, 18, 12, 20, 9, 15, 11, 6, 14, 19, 10].forEach(function (a) { s += '<i style="height:' + a + 'px"></i>'; });
+    return s + '</span>';
+  }
+  function bolha(m) {
+    var el = document.createElement('div');
+    if (m.de === 'passagem') { el.className = 'passagem'; el.textContent = m.t; return el; }
+    if (m.de === 'audio') {
+      el.className = 'bolha lead audio';
+      el.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path fill="#4a6b3a" d="M8 5v14l11-7z"/></svg>' + onda() + '<small>0:09 · ' + m.h + '</small>';
+      return el;
+    }
+    el.className = 'bolha ' + m.de;
+    el.textContent = m.t;
+    var hora = document.createElement('small'); hora.textContent = m.h; el.appendChild(hora);
+    return el;
+  }
+  function reiniciar() {
+    caixa.innerHTML = '';
+    if (cardMariana) { cardMariana.remove(); cardMariana = null; }
+    $('kpi-respostas').textContent = 141; $('kpi-equipe').textContent = 8;
+    contar();
+  }
+  async function rodar() {
+    if (parado) { roteiro.forEach(function (m) { caixa.appendChild(bolha(m)); m.painel(); }); return; }
+    await esperar(1400);
+    for (;;) {
+      reiniciar();
+      await esperar(700);
+      for (var i = 0; i < roteiro.length; i++) {
+        var m = roteiro[i];
+        if (m.de === 'janete') {
+          estado.textContent = 'digitando...';
+          var d = document.createElement('div');
+          d.className = 'bolha janete digitando';
+          d.innerHTML = '<i></i><i></i><i></i>';
+          caixa.appendChild(d);
+          await esperar(1400);
+          d.remove();
+          estado.textContent = 'online';
+        }
+        caixa.appendChild(bolha(m));
+        await esperar(350);
+        m.painel();
+        await esperar(m.de === 'passagem' ? 5200 : 1700);
+      }
+    }
+  }
+  rodar();
+
+  // ---------- barras de 24 horas
+  var r24 = $('relogio-24');
+  var alturas = [42, 30, 18, 12, 10, 14, 26, 48, 64, 72, 80, 76, 70, 74, 78, 82, 86, 90, 84, 92, 88, 76, 64, 52];
+  alturas.forEach(function (h, i) {
+    var b = document.createElement('i');
+    b.style.height = h + '%';
+    b.style.transitionDelay = (i * 0.03) + 's';
+    if (i < 7 || i > 18) b.className = 'noturno';
+    r24.appendChild(b);
+  });
+  var ondas = $('ondas');
+  for (var k = 0; k < 36; k++) {
+    var o = document.createElement('i');
+    o.style.height = (30 + Math.round(Math.abs(Math.sin(k * 0.9)) * 70)) + '%';
+    o.style.animationDelay = (k * 0.05) + 's';
+    ondas.appendChild(o);
+  }
+
+  // ---------- calculadora
+  var brl = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 });
+  var mostrado = 0, alvo = 0, quadro = 0;
+  function animarValor() {
+    cancelAnimationFrame(quadro);
+    if (parado) { mostrado = alvo; $('perda').textContent = brl.format(alvo); return; }
+    var inicio = mostrado, t0 = performance.now();
+    (function passo(t) {
+      var p = Math.min(1, (t - t0) / 450), e = 1 - Math.pow(1 - p, 3);
+      mostrado = inicio + (alvo - inicio) * e;
+      $('perda').textContent = brl.format(mostrado);
+      if (p < 1) quadro = requestAnimationFrame(passo);
+    })(t0);
+  }
+  function calcular() {
+    var ticket = +$('ticket').value, perdidos = +$('perdidos').value, recupera = +$('recupera').value / 100;
+    var ESTRUTURA = 170;
+    var perda = ticket * perdidos * 4.3, recuperado = perda * recupera, liquido = recuperado - ESTRUTURA, meses = liquido > 0 ? 3500 / liquido : Infinity;
+    $('ticket-saida').textContent = brl.format(ticket);
+    $('perdidos-saida').textContent = perdidos;
+    $('recupera-saida').textContent = Math.round(recupera * 100) + '%';
+    alvo = perda; animarValor();
+    $('recuperado').textContent = brl.format(recuperado) + '/mês';
+    $('retorno').textContent = meses <= 1 ? 'menos de 1 mês' : meses > 24 ? 'mais de 2 anos' : 'cerca de ' + Math.ceil(meses) + ' meses';
+    if (WHATSAPP) {
+      var msg = 'Oi, Janete! Fiz a conta no site: cliente de ' + brl.format(ticket) + ', ' + perdidos + ' clientes perdidos por semana, recuperando ' + Math.round(recupera * 100) + '%. Quero saber como você pode atender o WhatsApp do meu comércio.';
+      var c = $('cta-conta'); c.href = 'https://wa.me/' + WHATSAPP + '?text=' + encodeURIComponent(msg); c.target = '_blank'; c.rel = 'noopener';
+    }
+  }
+  ['ticket', 'perdidos', 'recupera'].forEach(function (id) { $(id).addEventListener('input', calcular); });
+  calcular();
+
+  // ---------- números que sobem
+  function subir(el) {
+    var fim = +el.dataset.contaAte, suf = el.dataset.sufixo || '', t0 = performance.now();
+    if (parado) { el.textContent = fim + suf; return; }
+    (function passo(t) {
+      var p = Math.min(1, (t - t0) / 1400), e = 1 - Math.pow(1 - p, 3);
+      el.textContent = Math.round(fim * e) + suf;
+      if (p < 1) requestAnimationFrame(passo);
+    })(t0);
+  }
+
+  // ---------- entradas ao rolar
+  function aoVer(el, fn, margem) {
+    if (!('IntersectionObserver' in window) || parado) { fn(el); return; }
+    var io = new IntersectionObserver(function (es) {
+      es.forEach(function (e) { if (e.isIntersecting) { fn(e.target); io.unobserve(e.target); } });
+    }, { rootMargin: margem || '0px 0px -12% 0px' });
+    io.observe(el);
+  }
+  document.querySelectorAll('.revela').forEach(function (el) { aoVer(el, function (x) { x.classList.add('visivel'); }); });
+  // ---------- vitrine: telas reais do painel, trocando sozinhas
+  var abas = [$('aba-dashboard'), $('aba-chat')], vitrineTimer = 0, DURACAO = 7000;
+  var palcoVitrine = document.querySelector('.vitrine-palco');
+  function ajustarPalco(tela) { palcoVitrine.style.height = tela.offsetHeight + 'px'; }
+  addEventListener('resize', function () { var a = document.querySelector('.tela-app.ativa'); if (a) ajustarPalco(a); });
+  document.querySelectorAll('.tela-app img').forEach(function (img) { img.addEventListener('load', function () { var a = document.querySelector('.tela-app.ativa'); if (a) ajustarPalco(a); }); });
+  function abrirTela(i, auto) {
+    abas.forEach(function (b, j) {
+      var tela = $(b.getAttribute('aria-controls')), ativa = i === j;
+      b.setAttribute('aria-selected', ativa ? 'true' : 'false');
+      tela.classList.toggle('ativa', ativa);
+      document.querySelector('[data-para="' + tela.id + '"]').classList.toggle('ativa', ativa);
+      var barra = b.querySelector('.barra');
+      barra.classList.remove('corre'); void barra.offsetWidth;
+      if (ativa && auto) barra.classList.add('corre');
+      if (ativa) { $('vitrine-url').textContent = tela.dataset.url; ajustarPalco(tela); }
+    });
+    clearTimeout(vitrineTimer);
+    if (auto && !parado) vitrineTimer = setTimeout(function () { abrirTela((i + 1) % abas.length, true); }, DURACAO);
+  }
+  abas.forEach(function (b, i) { b.addEventListener('click', function () { abrirTela(i, false); }); });
+  document.documentElement.style.setProperty('--duracao', DURACAO / 1000 + 's');
+  aoVer($('painel'), function () { abrirTela(0, true); }, '0px 0px -30% 0px');
+
+  aoVer($('noite'), function (x) { x.classList.add('ativa'); }, '0px 0px -25% 0px');
+  aoVer($('tempo'), function (x) { x.classList.add('ativo'); }, '0px 0px -20% 0px');
+  aoVer($('resumo'), function (x) { x.classList.add('ativo'); x.querySelectorAll('[data-conta-ate]').forEach(subir); }, '0px 0px -20% 0px');
+})();
+</script>
+</body>
+</html>

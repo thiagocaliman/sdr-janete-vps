@@ -1,0 +1,3 @@
+# Bloqueia a pasta interna do Git (o deploy da Hostinger clona o repositorio aqui)
+RedirectMatch 404 /\.git
+DirectoryIndex index.html
