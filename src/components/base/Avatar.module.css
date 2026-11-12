@@ -1,0 +1,48 @@
+.avatar {
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  overflow: hidden;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  font-family: var(--ap-fonte);
+  font-size: var(--ap-fs-apoio);
+  font-weight: var(--ap-peso-forte);
+  line-height: 1;
+  letter-spacing: var(--ap-ls-sigla);
+  user-select: none;
+}
+
+.avatar[data-tamanho='p'] {
+  width: 32px;
+  height: 32px;
+  font-size: var(--ap-fs-meta);
+}
+
+.avatar[data-tamanho='g'] {
+  width: var(--ap-controle);
+  height: var(--ap-controle);
+}
+
+/* 4,99:1 (azul-texto sobre azul-claro). */
+.avatar[data-tom='azul'] {
+  background: var(--ap-azul-claro);
+  color: var(--ap-azul-texto);
+}
+
+.avatar[data-tom='navy'] {
+  background: var(--ap-navy);
+  color: var(--ap-tinta-inversa);
+}
+
+.avatar[data-tom='neutro'] {
+  background: var(--ap-canvas);
+  color: var(--ap-tinta-2);
+}
+
+.foto {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}

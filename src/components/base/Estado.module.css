@@ -1,0 +1,71 @@
+.estado {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--ap-tinta-2);
+  font-family: var(--ap-fonte);
+  font-size: var(--ap-fs-apoio);
+  font-weight: var(--ap-peso-medio);
+  line-height: var(--ap-lh-ui);
+  letter-spacing: var(--ap-ls-corpo);
+}
+
+.estado[data-tamanho='meta'] {
+  gap: var(--ap-esp-1);
+  font-size: var(--ap-fs-meta);
+  letter-spacing: var(--ap-ls-rotulo);
+}
+
+.icone {
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+}
+
+.estado[data-tamanho='meta'] .icone svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* Texto na tinta (a cor do estado a 13,5px não chega a 4,5:1 em todos os tons); o
+   ícone carrega a cor. Exceção: erro, cujo vermelho passa a 6,57:1 e pede atenção. */
+.estado[data-tom='andamento'] .icone {
+  color: var(--ap-azul);
+}
+
+.estado[data-tom='sucesso'] .icone {
+  color: var(--ap-sucesso);
+}
+
+.estado[data-tom='atencao'] .icone {
+  color: var(--ap-atencao);
+}
+
+.estado[data-tom='erro'] {
+  color: var(--ap-erro);
+}
+
+.estado[data-tom='andamento'],
+.estado[data-tom='sucesso'],
+.estado[data-tom='atencao'] {
+  color: var(--ap-tinta);
+}
+
+.estado[data-palco] {
+  color: var(--ap-palco-tinta-2);
+}
+
+.estado[data-palco][data-tom='andamento'],
+.estado[data-palco][data-tom='sucesso'],
+.estado[data-palco][data-tom='atencao'],
+.estado[data-palco][data-tom='erro'] {
+  color: var(--ap-palco-tinta);
+}
+
+.estado[data-palco] .icone {
+  color: inherit;
+}
+
+.estado[data-palco][data-tom='andamento'] .icone {
+  color: var(--ap-azul);
+}

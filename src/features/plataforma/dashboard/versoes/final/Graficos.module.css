@@ -1,0 +1,341 @@
+/* Os gráficos da versão A (prefixo dva): barras, linhas, o medidor, a barra dividida e o "como
+   contamos". Só tokens --ap-*. As séries que precisam ser distinguidas também diferem em luminosidade:
+   a de destaque é o azul; a de comparação, um cinza mais claro. */
+
+.dvaGraf {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+/* ---------- barras ---------- */
+
+.dvaBarras {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 100%;
+}
+
+.dvaBarras[data-densa] {
+  gap: 1px;
+}
+
+.dvaBarras > span {
+  flex: 1 1 0;
+  min-width: 1px;
+  height: max(2px, calc(var(--h, 0) * 100%));
+  border-radius: 3px 3px 1px 1px;
+  background: color-mix(in srgb, var(--ap-azul) 24%, var(--ap-branco));
+  transition: height var(--app-motion-reveal) var(--ap-ease-out);
+}
+
+.dvaBarras > span[data-ultimo],
+.dvaBarras > span[data-maior] {
+  background: var(--ap-azul);
+}
+
+/* ---------- linhas ---------- */
+
+.dvaLinha {
+  color: var(--ap-azul);
+}
+
+.dvaLinha svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.dvaLinha path[data-traco] {
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.dvaLinha g[data-tom='forte'] path[data-traco] {
+  stroke: var(--ap-azul);
+}
+
+.dvaLinha g[data-tom='fraca'] path[data-traco] {
+  stroke: var(--ap-borda-campo);
+  stroke-width: 1.5;
+  stroke-dasharray: 3 3;
+}
+
+.dvaLinhaPonto {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  margin: -4px 0 0 -4px;
+  border-radius: 50%;
+  background: var(--ap-azul);
+  box-shadow: 0 0 0 2.5px var(--ap-branco);
+}
+
+/* ---------- barras com linha (enviadas × recebidas) ---------- */
+
+.dvaBarrasLinha .dvaBarras > span {
+  background: color-mix(in srgb, var(--ap-azul) 20%, var(--ap-branco));
+}
+
+.dvaBarrasLinha svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.dvaBarrasLinha path {
+  fill: none;
+  stroke: var(--ap-tinta-2);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+/* ---------- medidor ---------- */
+
+.dvaMedidor {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.dvaMedidor rect {
+  fill: var(--ap-linha);
+}
+
+.dvaMedidor rect[data-cheio] {
+  fill: var(--ap-azul);
+}
+
+/* ---------- barra dividida ---------- */
+
+.dvaDivisao {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.dvaDivisaoBarra {
+  display: flex;
+  gap: 3px;
+  height: 10px;
+}
+
+.dvaDivisaoBarra > span {
+  flex-basis: 0;
+  min-width: 4px;
+  border-radius: var(--ap-r-pilula);
+}
+
+.dvaDivisaoLegenda [data-tom='forte'] > i,
+.dvaDivisaoBarra > span[data-tom='forte'] {
+  background: var(--ap-azul);
+}
+
+.dvaDivisaoLegenda [data-tom='escuro'] > i,
+.dvaDivisaoBarra > span[data-tom='escuro'] {
+  background: var(--ap-navy);
+}
+
+.dvaDivisaoLegenda [data-tom='fraco'] > i,
+.dvaDivisaoBarra > span[data-tom='fraco'] {
+  background: var(--ap-borda-campo);
+}
+
+.dvaDivisaoLegenda [data-tom='neutro'] > i,
+.dvaDivisaoBarra > span[data-tom='neutro'] {
+  background: var(--ap-linha-forte);
+}
+
+.dvaDivisaoBarra > span[data-tom='vazio'] {
+  background: var(--ap-linha);
+}
+
+.dvaDivisaoLegenda {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--ap-fs-meta);
+  line-height: 1.4;
+  color: var(--ap-tinta-2);
+}
+
+.dvaDivisaoLegenda li {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.dvaDivisaoLegenda i {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.dvaDivisaoLegenda b {
+  color: var(--ap-tinta);
+  font-family: var(--ap-fonte);
+  font-weight: var(--ap-peso-forte);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- barras por dia ---------- */
+
+.dvaBarrasDia {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+}
+
+.dvaBarrasDia > .dvaBarras {
+  height: 72px;
+}
+
+.dvaBarrasDiaEixo {
+  display: flex;
+  justify-content: space-between;
+  color: var(--ap-tinta-3);
+  font-family: var(--ap-fonte-mono);
+  font-size: var(--ap-fs-micro);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- como contamos ---------- */
+
+.dvaComo {
+  position: relative;
+  display: inline-flex;
+  flex: none;
+}
+
+.dvaComoBotao {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--ap-canvas);
+  color: var(--ap-tinta-3);
+  cursor: help;
+  transition:
+    background-color var(--app-t-state),
+    color var(--app-t-state);
+}
+
+/* alvo de toque de 44 px sem mudar o desenho */
+.dvaComoBotao::after {
+  content: '';
+  position: absolute;
+  inset: -8px;
+}
+
+.dvaComoBotao:hover {
+  background: var(--ap-azul-claro);
+  color: var(--ap-azul-texto);
+}
+
+.dvaComoBotao:focus-visible {
+  outline: none;
+  box-shadow: var(--ap-anel);
+}
+
+.dvaComo[data-escuro] .dvaComoBotao {
+  background: var(--ap-palco-superficie);
+  color: var(--ap-palco-tinta-2);
+}
+
+.dvaComo[data-escuro] .dvaComoBotao:hover {
+  background: var(--ap-palco-superficie-forte);
+  color: var(--ap-palco-tinta);
+}
+
+.dvaComo[data-escuro] .dvaComoBotao:focus-visible {
+  box-shadow: var(--ap-anel-escuro);
+}
+
+.dvaComoBalao {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: -6px;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: max-content;
+  max-width: min(18rem, 80vw);
+  padding: 12px 14px;
+  border-radius: var(--ap-r-mini);
+  background: var(--ap-navy);
+  color: var(--ap-palco-tinta-2);
+  font-size: var(--ap-fs-meta);
+  font-weight: var(--ap-peso-regular);
+  line-height: 1.5;
+  letter-spacing: var(--ap-ls-corpo);
+  text-align: left;
+  white-space: normal;
+  box-shadow: var(--ap-sombra-flutuante);
+  pointer-events: none;
+  visibility: hidden;
+  opacity: 0;
+  transform: translateY(-4px);
+  transition:
+    opacity var(--app-t-state),
+    transform var(--app-t-state),
+    visibility var(--app-t-state);
+}
+
+.dvaComo[data-alinhar='inicio'] .dvaComoBalao {
+  right: auto;
+  left: -6px;
+}
+
+.dvaComoBalao b {
+  color: var(--ap-palco-tinta);
+  font-weight: var(--ap-peso-forte);
+}
+
+.dvaComoBalao[data-aberta] {
+  visibility: visible;
+  opacity: 1;
+  transform: none;
+}
+
+.dvaComo[data-escuro] .dvaComoBalao {
+  background: var(--ap-branco);
+  color: var(--ap-tinta-2);
+}
+
+.dvaComo[data-escuro] .dvaComoBalao b {
+  color: var(--ap-tinta);
+}
+
+@media (pointer: coarse) {
+  .dvaComoBotao::after {
+    inset: -10px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dvaBarras > span,
+  .dvaComoBalao,
+  .dvaComoBotao {
+    transition: none;
+  }
+}

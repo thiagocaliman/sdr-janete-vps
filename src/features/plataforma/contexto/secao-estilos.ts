@@ -1,0 +1,42 @@
+import { type Classes } from "@/components/base/cx";
+
+import estilos from "./Secao.module.css";
+
+/** As classes da seção da área (Secao.module.css). O círculo do ícone (`ico`) também serve ao editor. */
+export const s = estilos as Classes<
+  | "secao"
+  | "esq"
+  | "voltar"
+  | "kbd"
+  | "atual"
+  | "quadro"
+  | "letra"
+  | "nomeIn"
+  | "titulo"
+  | "guia"
+  | "meta"
+  | "outros"
+  | "troca"
+  | "trocaQuadro"
+  | "trocaLetra"
+  | "trocaRot"
+  | "subTit"
+  | "subNum"
+  | "lista"
+  | "listaIn"
+  | "li"
+  | "liVazio"
+  | "liNovo"
+  | "liMuda"
+  | "liNome"
+  | "liMotivo"
+  | "ico"
+  | "icoVazio"
+  | "icoRasc"
+  | "icoAntiga"
+  | "g36"
+  | "g40"
+  | "toast"
+  | "toastIc"
+  | "sr"
+>;

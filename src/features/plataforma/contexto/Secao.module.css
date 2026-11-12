@@ -1,0 +1,657 @@
+/* =========================================================
+   A seção da área (Contexto 6, .ctx-sec): o palco troca o mapa por 3 colunas, sem linha nenhuma.
+   Esquerda: o Voltar, a camada aberta (ícone, letra, nome e pergunta-guia) e as outras 3 camadas.
+   Meio: a lista da área. Direita: o editor de um item por vez (Editor.module.css).
+   A seção tem altura própria, medida pela janela; só a lista e o editor rolam por dentro.
+   ========================================================= */
+.secao {
+  --sc1: clamp(216px, 22%, 260px);
+  --sc2: clamp(240px, 24%, 300px);
+  position: relative;
+  flex: 1 1 auto;
+  height: max(560px, calc(100dvh - 300px));
+  min-height: 0;
+  display: grid;
+  grid-template-columns: var(--sc1) var(--sc2) minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+  column-gap: 28px;
+  color: var(--ap-tinta);
+  font-family: var(--ap-fonte);
+  animation: sec-aparece 0.22s var(--ap-ease-out) backwards;
+}
+
+.secao:focus {
+  outline: none;
+}
+
+.sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ---------- esquerda: a camada aberta e as outras ---------- */
+.esq {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  min-width: 0;
+  min-height: 0;
+}
+
+.voltar {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ap-esp-2);
+  min-height: var(--ap-controle);
+  padding: 0 10px 0 12px;
+  border: 1px solid var(--ap-linha-forte);
+  border-radius: var(--ap-r-pilula);
+  background: var(--ap-branco);
+  color: var(--ap-tinta);
+  font: inherit;
+  font-size: var(--ap-fs-corpo);
+  font-weight: var(--ap-peso-forte);
+  line-height: var(--ap-lh-cartao);
+  cursor: pointer;
+  flex: none;
+  transition:
+    background-color var(--app-t-state),
+    transform var(--app-t-touch);
+}
+
+.voltar:hover {
+  background: var(--ap-azul-nevoa);
+}
+
+.voltar:active {
+  transform: scale(0.98);
+}
+
+.voltar svg {
+  width: 18px;
+  height: 18px;
+  flex: none;
+}
+
+.kbd {
+  display: inline-flex;
+  align-items: center;
+  min-height: 22px;
+  padding: 0 8px;
+  border-radius: var(--ap-r-pilula);
+  background: var(--ap-canvas);
+  font-family: var(--ap-fonte-mono);
+  font-size: var(--ap-fs-micro);
+  font-weight: var(--ap-peso-medio);
+  color: var(--ap-tinta-3);
+}
+
+.atual {
+  display: grid;
+  grid-template-columns: 56px minmax(0, 1fr);
+  column-gap: 14px;
+  align-items: center;
+  margin-top: 24px;
+}
+
+/* o quadro do ícone da camada aberta: laranja cheio, ícone branco */
+.quadro {
+  display: grid;
+  width: 56px;
+  height: 56px;
+  place-items: center;
+  border-radius: 16px;
+  background: var(--ap-azul);
+  color: var(--ap-sobre-cor, #fff);
+}
+
+.quadro svg {
+  width: 26px;
+  height: 26px;
+}
+
+.nomeIn {
+  display: contents;
+}
+
+.letra {
+  font-size: 48px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  animation: sec-troca 0.26s var(--ap-ease-out) backwards;
+}
+
+.titulo {
+  grid-column: 1 / -1;
+  margin: 14px 0 0;
+  font-size: 18px;
+  font-weight: var(--ap-peso-forte);
+  line-height: 1.2;
+  letter-spacing: -0.014em;
+  text-wrap: balance;
+  animation: sec-troca 0.26s var(--ap-ease-out) backwards;
+}
+
+.titulo:focus {
+  outline: none;
+}
+
+.guia {
+  grid-column: 1 / -1;
+  margin: 6px 0 0;
+  color: var(--ap-tinta-2);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.meta {
+  grid-column: 1 / -1;
+  margin: 10px 0 0;
+  font-size: var(--ap-fs-meta);
+  font-weight: var(--ap-peso-medio);
+  line-height: var(--ap-lh-ui);
+  letter-spacing: var(--ap-ls-rotulo);
+  color: var(--ap-tinta-3);
+}
+
+.outros {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: 22px;
+  padding-top: 14px;
+  border-top: 1px solid var(--ap-linha);
+}
+
+.troca {
+  display: grid;
+  grid-template-columns: 34px 1.1em minmax(0, 1fr);
+  column-gap: 10px;
+  align-items: center;
+  padding: 6px 10px 6px 6px;
+  margin: 0 -6px;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--ap-tinta-2);
+  font: inherit;
+  font-size: var(--ap-fs-corpo);
+  font-weight: var(--ap-peso-medio);
+  line-height: var(--ap-lh-cartao);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background-color var(--app-t-state),
+    color var(--app-t-state);
+}
+
+.troca:hover {
+  background: var(--ap-branco);
+  color: var(--ap-tinta);
+}
+
+.troca:focus-visible {
+  outline: none;
+  box-shadow: var(--ap-anel);
+}
+
+.trocaQuadro {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border-radius: 10px;
+  background: var(--ap-azul-claro);
+  color: var(--ap-azul);
+  transition:
+    background-color var(--app-t-state),
+    color var(--app-t-state);
+}
+
+.trocaQuadro svg {
+  width: 18px;
+  height: 18px;
+}
+
+.troca:hover .trocaQuadro,
+.troca:focus-visible .trocaQuadro {
+  background: var(--ap-azul);
+  color: var(--ap-sobre-cor, #fff);
+}
+
+.trocaLetra {
+  color: var(--ap-tinta);
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.trocaRot {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* o título "Perguntas livres" dentro da lista de Treinamento */
+.subTit {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 14px 0 2px;
+  padding: 12px 12px 0;
+  border-top: 1px solid var(--ap-linha);
+  color: var(--ap-tinta-2);
+  font-size: var(--ap-fs-meta);
+  font-weight: var(--ap-peso-forte);
+  letter-spacing: var(--ap-ls-rotulo);
+}
+
+.subNum {
+  color: var(--ap-tinta-3);
+  font-weight: var(--ap-peso-medio);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- meio: a lista da área, no estilo das linhas do mapa, com o nome à esquerda ---------- */
+.lista {
+  min-width: 0;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  margin: -4px -8px 0;
+  padding: 4px 8px 16px;
+}
+
+.listaIn {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  animation: sec-troca 0.28s var(--ap-ease-out) backwards;
+}
+
+.li {
+  display: grid;
+  grid-template-columns: 36px minmax(0, 1fr);
+  align-items: center;
+  column-gap: 12px;
+  width: 100%;
+  min-height: 52px;
+  padding: 8px 14px 8px 8px;
+  border: 0;
+  border-radius: var(--ap-r-item);
+  background: transparent;
+  color: var(--ap-tinta);
+  font: inherit;
+  font-size: var(--ap-fs-corpo);
+  font-weight: var(--ap-peso-medio);
+  line-height: 1.35;
+  text-align: left;
+  cursor: pointer;
+  flex: none;
+  transition:
+    background-color var(--app-t-state),
+    box-shadow var(--app-t-state);
+}
+
+.li:hover {
+  background: var(--ap-esqueleto);
+}
+
+.li[aria-current="true"] {
+  background: var(--ap-branco);
+  box-shadow: var(--ap-sombra-card);
+  font-weight: var(--ap-peso-forte);
+}
+
+/* o anel só com teclado; o foco que vem de um clique não desenha anel */
+.li:focus-visible {
+  outline: none;
+  box-shadow: var(--ap-anel);
+}
+
+.li[data-sem-anel]:focus-visible {
+  box-shadow: none;
+}
+
+.li[data-sem-anel][aria-current="true"]:focus-visible {
+  box-shadow: var(--ap-sombra-card);
+}
+
+.liNome {
+  min-width: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-wrap: pretty;
+}
+
+.liVazio .liNome {
+  color: var(--ap-tinta-2);
+}
+
+.liNovo .liNome {
+  color: var(--ap-azul-texto);
+  font-weight: var(--ap-peso-forte);
+}
+
+.liNovo .ico {
+  color: var(--ap-azul-texto);
+}
+
+.liMuda .liNome {
+  color: var(--ap-atencao);
+}
+
+/* no teto de 50 perguntas: o "Novo item livre" fica apagado e mostra o motivo embaixo do nome */
+.li[data-desligado] {
+  cursor: not-allowed;
+}
+
+.li[data-desligado]:hover {
+  background: transparent;
+}
+
+.li[data-desligado] .liNome,
+.li[data-desligado] .ico {
+  color: var(--ap-tinta-2);
+}
+
+.liMotivo {
+  grid-column: 2;
+  min-width: 0;
+  margin-top: 2px;
+  font-size: 0.78125rem;
+  line-height: 1.35;
+  color: var(--ap-tinta-2);
+}
+
+/* ---------- o círculo do ícone: o contorno conta a situação ----------
+   contorno azul (a Janete sabe), cinza tracejado (ainda vazio) ou anel azul claro (não salvo) */
+.ico {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--ap-branco);
+  box-shadow: inset 0 0 0 1.5px var(--ap-azul);
+  color: var(--ap-tinta);
+  transition:
+    box-shadow 0.35s var(--ap-ease-out),
+    color 0.35s var(--ap-ease-out),
+    background-color 0.35s var(--ap-ease-out);
+}
+
+.ico svg {
+  width: 17px;
+  height: 17px;
+}
+
+.icoVazio {
+  background: transparent;
+  box-shadow: none;
+  color: var(--ap-tinta-2);
+}
+
+.icoVazio::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1.5px dashed var(--ap-borda-campo);
+}
+
+.icoRasc {
+  box-shadow:
+    inset 0 0 0 2px color-mix(in srgb, var(--ap-azul) 55%, var(--ap-branco)),
+    0 0 0 3px var(--ap-azul-nevoa);
+}
+
+.icoAntiga {
+  box-shadow: inset 0 0 0 1.5px var(--ap-borda-campo);
+}
+
+.g36 {
+  width: 36px;
+  height: 36px;
+}
+
+.g36 svg {
+  width: 18px;
+  height: 18px;
+}
+
+.g40 {
+  width: 40px;
+  height: 40px;
+}
+
+.g40 svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* ---------- o aviso de versão salva ---------- */
+.toast {
+  position: fixed;
+  left: calc(50% + 120px);
+  bottom: 28px;
+  z-index: var(--ap-z-toast);
+  translate: -50% 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: calc(100% - 32px);
+  margin: 0;
+  padding: 12px 18px 12px 14px;
+  border-radius: var(--ap-r-item);
+  background: var(--ap-navy);
+  color: var(--ap-sobre-cor);
+  font-size: var(--ap-fs-corpo);
+  font-weight: var(--ap-peso-medio);
+  box-shadow: var(--ap-sombra-flutuante);
+  pointer-events: none;
+  animation: sec-toast 0.42s var(--ap-ease-spring) backwards;
+}
+
+.toastIc {
+  width: 18px;
+  height: 18px;
+  flex: none;
+  color: var(--ap-azul);
+}
+
+/* ---------- até 1279 px: a camada numa faixa no alto, a lista e o editor embaixo ---------- */
+@media (min-width: 900px) and (max-width: 1279px) {
+  .secao:not([data-estreita]) {
+    grid-template-columns: minmax(220px, 36%) minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr);
+    row-gap: 14px;
+    column-gap: 20px;
+  }
+
+  .secao:not([data-estreita]) .esq {
+    grid-column: 1 / -1;
+    flex-direction: row;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .secao:not([data-estreita]) .voltar {
+    align-self: center;
+  }
+
+  .secao:not([data-estreita]) .atual {
+    grid-template-columns: 44px auto auto;
+    column-gap: 10px;
+    margin-top: 0;
+  }
+
+  .secao:not([data-estreita]) .quadro {
+    width: 44px;
+    height: 44px;
+    border-radius: 13px;
+  }
+
+  .secao:not([data-estreita]) .letra {
+    font-size: 32px;
+  }
+
+  .secao:not([data-estreita]) .titulo {
+    grid-column: auto;
+    margin: 0;
+  }
+
+  .secao:not([data-estreita]) .guia,
+  .secao:not([data-estreita]) .meta {
+    display: none;
+  }
+
+  .secao:not([data-estreita]) .outros {
+    flex-direction: row;
+    gap: 4px;
+    margin: 0 0 0 auto;
+    padding: 0;
+    border: 0;
+  }
+
+  .secao:not([data-estreita]) .troca {
+    grid-template-columns: 34px 1.1em;
+    margin: 0;
+  }
+
+  .secao:not([data-estreita]) .trocaRot {
+    display: none;
+  }
+}
+
+/* ---------- celular: uma folha em tela cheia; no alto a camada e as outras; a lista embaixo ---------- */
+.secao[data-estreita] {
+  position: fixed;
+  inset: 0;
+  z-index: var(--ap-z-overlay);
+  height: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 12px 16px calc(32px + env(safe-area-inset-bottom));
+  background: var(--ap-canvas);
+  animation: sec-folha 0.36s var(--ap-ease-out) backwards;
+}
+
+.secao[data-estreita] .esq {
+  flex: none;
+}
+
+.secao[data-estreita] .atual {
+  grid-template-columns: 48px minmax(0, 1fr);
+  margin-top: 16px;
+}
+
+.secao[data-estreita] .quadro {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+}
+
+.secao[data-estreita] .letra {
+  font-size: 40px;
+}
+
+.secao[data-estreita] .outros {
+  flex-direction: row;
+  gap: 6px;
+  margin-top: 16px;
+}
+
+.secao[data-estreita] .troca {
+  flex: 1 1 0;
+  grid-template-columns: 34px minmax(0, 1fr);
+  min-height: 46px;
+  margin: 0;
+  padding: 6px;
+  background: var(--ap-branco);
+}
+
+.secao[data-estreita] .trocaLetra {
+  display: none;
+}
+
+.secao[data-estreita] .trocaRot {
+  font-size: var(--ap-fs-meta);
+}
+
+.secao[data-estreita] .lista {
+  overflow: visible;
+  margin: 0;
+  padding: 0;
+  flex: none;
+}
+
+.secao[data-estreita] .li {
+  min-height: 56px;
+}
+
+.secao[data-estreita] .li:hover {
+  background: transparent;
+}
+
+.secao[data-estreita] .toast {
+  left: 50%;
+  bottom: 96px;
+}
+
+/* ---------- keyframes ---------- */
+@keyframes sec-aparece {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes sec-troca {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+@keyframes sec-folha {
+  from {
+    opacity: 0;
+    transform: translateY(32px);
+  }
+}
+
+@keyframes sec-toast {
+  from {
+    opacity: 0;
+    translate: -50% 12px;
+  }
+  to {
+    opacity: 1;
+    translate: -50% 0;
+  }
+}
+
+/* ---------- movimento reduzido: tudo já no estado final ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .secao,
+  .secao *,
+  .secao *::before {
+    animation: none !important;
+    transition: none !important;
+  }
+}

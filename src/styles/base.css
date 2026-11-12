@@ -1,0 +1,354 @@
+/* =============================================================================
+   AI PRO · tokens da identidade visual
+
+   Fonte única do visual da Janete: branco e azul AI PRO, arredondado e plano. A marca
+   AI PRO NÃO entra neste projeto; só os tokens, os componentes e as regras de uso.
+
+   Este arquivo só declara. Nada aqui pinta a interface do shadcn/Tailwind que já
+   existe: as telas da Janete marcam a raiz com `data-identidade="aipro"` (ou usam o
+   componente `Pagina`), e só dentro delas a fonte, a cor e o corpo mudam.
+
+   Diferenças em relação ao original:
+   - a família vem do Google Fonts (link no __root.tsx), não de next/font;
+   - a camada antiga não existe aqui, então os tempos (--app-t-*), as curvas
+     (--ap-ease-*) e a pilha (--ap-z-*) que os componentes usam são declarados na
+     seção "Ponte" logo abaixo, com os valores de brand.css, tokens.css e globals.css
+     do projeto de origem.
+
+   Contraste medido pela fórmula WCAG, sobre o branco salvo indicação.
+   ============================================================================= */
+
+:root {
+  /* ---------- Ponte: tempos, curvas e pilha da camada antiga ---------- */
+
+  /* Curvas (da camada antiga). */
+  --ap-ease: cubic-bezier(0.32, 0.08, 0.24, 1);
+  --ap-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ap-ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ap-ease-snap: cubic-bezier(0.2, 0.7, 0.2, 1);
+
+  /* Durações e atalhos (brand.css linhas 79-86). */
+  --app-motion-state: 140ms;
+  --app-motion-touch: 200ms;
+  --app-motion-reveal: 320ms;
+  --app-motion-scene: 480ms;
+  --app-t-state: var(--app-motion-state) var(--ap-ease-snap);
+  --app-t-touch: var(--app-motion-touch) var(--ap-ease-snap);
+  --app-t-reveal: var(--app-motion-reveal) var(--ap-ease-out);
+  --app-t-scene: var(--app-motion-scene) var(--ap-ease-out);
+
+  /* Pilha (globals.css do projeto de origem). */
+  --ap-z-sticky: 40;
+  --ap-z-dock: 45;
+  --ap-z-overlay: 1000;
+  --ap-z-modal: 1100;
+  --ap-z-toast: 1200;
+  --ap-z-tooltip: 1300;
+
+  /* ---------- Cor: marca ---------- */
+
+  /* 3,27:1 no branco. Preenchimento, ícone, indicador, item ativo e texto de 24px
+     ou mais. Nunca texto pequeno nem rótulo branco dentro de botão. */
+  --ap-azul: #0b91f8;
+  /* 5,71:1 no branco, 4,99:1 no azul claro. Link e todo texto que precisa ser azul. */
+  --ap-azul-texto: #0668b8;
+  /* Fundo do estado ativo, do card do Consultor e de ícones. */
+  --ap-azul-claro: #e2f2fe;
+  /* Hover sutil sobre branco. */
+  --ap-azul-nevoa: #f1f8ff;
+
+  /* 17,9:1 no branco. Ação principal, títulos e texto forte. */
+  --ap-navy: #0e1531;
+  --ap-navy-2: #1c2750;
+  /* Fundo dos momentos escuros. */
+  --ap-palco: #0a1128;
+
+  /* ---------- Cor: texto ---------- */
+
+  --ap-tinta: #0e1531;
+  /* 5,95:1 no branco, 5,54:1 no canvas, 5,20:1 no azul claro. Texto de apoio. */
+  --ap-tinta-2: #5a6478;
+  /* 4,89:1 no branco, 4,56:1 no canvas. Metadado; evitar sobre o azul claro. */
+  --ap-tinta-3: #687186;
+  --ap-tinta-inversa: #ffffff;
+
+  /* ---------- Cor: superfície e linha ---------- */
+
+  --ap-canvas: #f5f7fa;
+  --ap-branco: #ffffff;
+  /* Separadores e contorno decorativo (1,21:1 e 1,39:1). Não bastam para identificar campo. */
+  --ap-linha: #e7eaf0;
+  --ap-linha-forte: #d6dbe5;
+  /* 3,09:1 no branco. Contorno que identifica controle de formulário (WCAG 1.4.11). */
+  --ap-borda-campo: #8a93a6;
+
+  /* ---------- Cor: tintas de categoria ---------- */
+
+  /* Só fundo de selo, chip e ícone. Texto sobre elas é sempre a tinta navy. */
+  --ap-rosa: #fce4ef;
+  --ap-menta: #dff5ea;
+  --ap-areia: #fff2d9;
+
+  /* ---------- Cor: estado ---------- */
+
+  /* Estado se comunica por texto e ícone; a cor reforça, nunca sozinha. */
+  --ap-sucesso: #17845a; /* 4,68:1 no branco; ícone sobre a menta */
+  --ap-atencao: #8a5a00; /* 5,35:1 na areia */
+  --ap-erro: #b42318; /* 6,57:1 no branco, 5,92:1 no erro claro */
+  --ap-erro-claro: #fef0ee;
+
+  /* ---------- Cor: terceiros ---------- */
+
+  /* Verde oficial do logo do WhatsApp: só no glifo. Nenhum texto, fundo ou borda usa. */
+  --ap-whatsapp: #25d366;
+  /* Bloco escuro neutro para logo de terceiro que só funciona sobre escuro (Z-API,
+     Evolution): o "grafite" do F. */
+  --ap-grafite: #16181d;
+
+  /* ---------- Tipografia ---------- */
+
+  /* Poppins e Geist Mono vêm do Google Fonts (link no head do __root.tsx). */
+  --ap-fonte: 'Poppins', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --ap-fonte-mono: 'Geist Mono', ui-monospace, SFMono-Regular, monospace;
+
+  /* Três níveis por bloco: título, apoio e metadado. A escala tem oito papéis para
+     cobrir telas diferentes, não para usar oito num mesmo card. */
+  --ap-fs-pagina: clamp(1.75rem, 1.15rem + 1.6vw, 2.5rem); /* 28 a 40px · título da tela */
+  --ap-fs-destaque: clamp(1.375rem, 1.1rem + 0.8vw, 1.75rem); /* 22 a 28px · protagonista */
+  --ap-fs-secao: 1.375rem; /* 22px · título de seção */
+  --ap-fs-cartao: 1.0625rem; /* 17px · título de card */
+  --ap-fs-corpo: 0.9375rem; /* 15px · texto e controles */
+  --ap-fs-apoio: 0.84375rem; /* 13,5px · texto secundário e ação compacta */
+  --ap-fs-meta: 0.78125rem; /* 12,5px · data, contagem, rótulo de campo pequeno */
+  --ap-fs-micro: 0.71875rem; /* 11,5px · só selo numérico e pílula de horário */
+  /* Campo de formulário fica em 16px: abaixo disso o iPhone aproxima a tela ao focar. */
+  --ap-fs-campo: 1rem;
+  /* Prosa de vários parágrafos: 16px, o mesmo corpo do campo onde a pessoa escreve. */
+  --ap-fs-leitura: 1rem;
+
+  --ap-peso-regular: 400;
+  --ap-peso-medio: 500;
+  --ap-peso-forte: 600;
+  /* 700 só para numerais gigantes e siglas em capa. Ênfase no texto é tom. */
+  --ap-peso-marca: 700;
+
+  --ap-lh-titulo: 1.15;
+  --ap-lh-cartao: 1.3;
+  --ap-lh-ui: 1.4;
+  --ap-lh-corpo: 1.6;
+
+  /* A Poppins corre larga: pede bem menos tracking negativo que a Geist. */
+  --ap-ls-pagina: -0.022em;
+  --ap-ls-secao: -0.012em;
+  --ap-ls-corpo: -0.003em;
+  --ap-ls-rotulo: 0.01em;
+  --ap-ls-sigla: 0.02em;
+  --ap-ls-capa: -0.032em;
+  --ap-ls-gigante: -0.06em;
+
+  /* ---------- Forma ---------- */
+
+  /* Raio por papel. Concêntrico: raio de dentro = raio de fora − folga. */
+  --ap-r-painel: 28px;
+  --ap-r-card: 24px;
+  --ap-r-item: 16px;
+  --ap-r-mini: 12px;
+  --ap-r-chip: 8px;
+  --ap-r-pilula: 999px;
+
+  /* ---------- Espaço ---------- */
+
+  /* Base 4. Fora desta lista, o valor precisa de motivo escrito. */
+  --ap-esp-1: 4px;
+  --ap-esp-2: 8px;
+  --ap-esp-3: 12px;
+  --ap-esp-4: 16px;
+  --ap-esp-5: 20px;
+  --ap-esp-6: 24px;
+  --ap-esp-7: 28px;
+  --ap-esp-8: 32px;
+  --ap-esp-10: 40px;
+  --ap-esp-12: 48px;
+  --ap-esp-16: 64px;
+
+  /* Papéis de densidade. */
+  --ap-pad-card: 24px;
+  --ap-pad-card-compacto: 20px;
+  --ap-gap-pagina: 24px;
+  --ap-gap-grade: 24px;
+  --ap-gap-lista: 2px;
+
+  /* Alvo de toque e altura de controle. */
+  --ap-controle: 44px;
+  --ap-controle-campo: 48px;
+  --ap-controle-principal: 50px;
+  --ap-item-nav: 44px;
+
+  /* ---------- Layout ---------- */
+
+  --ap-sidebar: 208px;
+  --ap-sidebar-trilho: 72px;
+  --ap-trilho-item-l: 44px;
+  --ap-trilho-item-a: 40px;
+  --ap-topo: 76px;
+  --ap-topo-celular: 64px;
+  --ap-conteudo-max: 1344px;
+  --ap-conteudo-amplo: 1920px;
+  --ap-leitura-max: 760px;
+
+  /* ---------- Elevação ---------- */
+
+  /* Quase plana: o tom separa, a sombra só assenta. */
+  --ap-sombra-card:
+    0 1px 2px color-mix(in srgb, var(--ap-navy) 4%, transparent),
+    0 10px 28px -22px color-mix(in srgb, var(--ap-navy) 22%, transparent);
+  --ap-sombra-flutuante:
+    0 2px 6px color-mix(in srgb, var(--ap-navy) 6%, transparent),
+    0 18px 40px -16px color-mix(in srgb, var(--ap-navy) 30%, transparent);
+  --ap-sombra-acao: 0 12px 26px -16px color-mix(in srgb, var(--ap-navy) 80%, transparent);
+
+  /* ---------- Foco ---------- */
+
+  /* Azul a 3,27:1 sobre o branco atende o mínimo de 3:1 para indicador de foco. */
+  --ap-anel: 0 0 0 2px var(--ap-branco), 0 0 0 4px var(--ap-azul);
+  --ap-anel-escuro: 0 0 0 3px var(--ap-palco), 0 0 0 6px var(--ap-branco);
+
+  /* Breakpoints: 600 · 768 · 900 · 1080 · 1280 · 1440 (n−1 em max-width). */
+
+  /* ---------- Palco: momentos escuros ---------- */
+
+  --ap-palco-tinta: #ffffff;
+  /* 10,46:1 sobre o palco #0a1128. */
+  --ap-palco-tinta-2: #b8c2d9;
+  --ap-palco-superficie: color-mix(in srgb, var(--ap-branco) 8%, transparent);
+  --ap-palco-superficie-forte: color-mix(in srgb, var(--ap-branco) 16%, transparent);
+  --ap-palco-linha: color-mix(in srgb, var(--ap-branco) 14%, transparent);
+
+  /* ---------- Sobreposição e carregamento ---------- */
+
+  /* Fundo atrás de diálogo e folha. A única translucidez da identidade. */
+  --ap-veu: color-mix(in srgb, var(--ap-navy) 48%, transparent);
+  /* Osso do skeleton: 1,15:1 do branco, o bastante para ler forma sem parecer conteúdo. */
+  --ap-esqueleto: #eceff4;
+  --ap-esqueleto-brilho: #f7f9fc;
+
+  /* ---------- Controle e layout ---------- */
+
+  /* Ação dentro de linha e pílula de resumo. */
+  --ap-controle-compacto: 36px;
+  --ap-coluna-apoio: 360px;
+  --ap-coluna-apoio-max: 440px;
+  --ap-coluna-apoio-fluida: clamp(var(--ap-coluna-apoio), 26%, var(--ap-coluna-apoio-max));
+  --ap-lista-max: 1080px;
+  /* Calha horizontal do conteúdo; 16 abaixo de 900. */
+  --ap-pad-pagina: 32px;
+  --ap-pad-pagina-celular: 16px;
+  /* Altura do dock do celular: item 56 + recheio 2 × 8 + borda 2 = 74px numa linha. */
+  --ap-dock-altura: 74px;
+  /* Padding inferior no celular: dock + botão do canto (52) + folgas (42). */
+  --ap-reserva-dock: calc(var(--ap-dock-altura) + 94px);
+  /* Telas de chat: só o dock, preso a max(12px, safe-area) do pé, + 12px de folga. */
+  --ap-reserva-dock-chat: calc(
+    max(var(--ap-esp-3), env(safe-area-inset-bottom)) + var(--ap-dock-altura) + var(--ap-esp-3)
+  );
+
+  /* Curva de retorno físico. Só em `animation`. */
+  --ap-ease-mola: var(--ap-ease-spring);
+  /* Passa 1,8% do percurso e assenta. */
+  --ap-ease-assentar: linear(0, 0.37 10%, 0.72 22%, 0.93 36%, 1.018 52%, 1.004 72%, 1);
+  /* Mola leve: passa 4% uma vez e assenta (rigidez 220, amortecimento 18, massa 1). */
+  --ap-ease-mola-leve: linear(0, 0.27 8%, 0.62 18%, 0.9 30%, 1.04 42%, 1.015 56%, 0.996 72%, 1);
+  /* Travessia: sai devagar e chega devagar (in-out cúbica). Percurso longo, como o voo
+     do símbolo entre as etapas. */
+  --ap-ease-travessia: cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+/* =============================================================================
+   Receitas de movimento com nome fixo. Keyframe citado em `animation` dentro de um
+   CSS Module é renomeado pelo escopo: estes dois só valem pelos seletores globais
+   abaixo; em módulo, use [data-entrada]/[data-preencher] e mude só o atraso.
+   ============================================================================= */
+
+@keyframes ap-entrada {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+@keyframes ap-preencher {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+/* Coreografia de entrada da tela: no máximo quatro blocos (ordem 0 a 3). */
+[data-identidade='aipro'] [data-entrada] {
+  animation: ap-entrada var(--app-motion-reveal) var(--ap-ease-out) backwards;
+  animation-delay: calc(var(--ap-ordem, 0) * 60ms);
+}
+
+[data-identidade='aipro'] [data-preencher] {
+  transform-origin: left;
+  animation: ap-preencher var(--app-motion-reveal) var(--ap-ease-out) backwards;
+}
+
+/* `Pagina entrada={false}` desliga a coreografia da tela inteira. */
+[data-identidade='aipro'][data-sem-entrada] [data-entrada] {
+  animation: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-identidade='aipro'] [data-entrada],
+  [data-identidade='aipro'] [data-preencher] {
+    animation: none;
+  }
+}
+
+/* =============================================================================
+   Escopo da identidade
+
+   Toda tela da Janete marca a raiz com `data-identidade="aipro"`. Fora dele o
+   shadcn/Tailwind continua como está.
+   ============================================================================= */
+
+/* A barra de rolagem aparece e some quando um cartão abre ou fecha e a página passa a caber (ou não)
+   na tela. Sem o espaço reservado, tudo que é centralizado anda uns 15 px para o lado a cada clique
+   ("sai do eixo"). Vale para o app inteiro; em celular, onde a barra flutua, não muda nada. */
+html {
+  scrollbar-gutter: stable;
+}
+
+/* A barra de etapas do onboarding (`#onb-nav`) fica presa no topo. Enquanto ela está na tela, toda
+   rolagem até um elemento (scrollIntoView, foco que rola) desconta a altura dela: nada para escondido
+   atrás da barra. Os valores são os de --onb-nav-h (4.5rem; 7.25rem abaixo de 900 px). */
+html:has(#onb-nav:not([data-recolhe])) {
+  scroll-padding-top: 4.5rem;
+}
+
+@media (max-width: 899px) {
+  html:has(#onb-nav:not([data-recolhe])) {
+    scroll-padding-top: 7.25rem;
+  }
+}
+
+[data-identidade='aipro'] {
+  color: var(--ap-tinta);
+  font-family: var(--ap-fonte);
+  font-size: var(--ap-fs-corpo);
+  line-height: var(--ap-lh-corpo);
+  letter-spacing: var(--ap-ls-corpo);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Título herda a família e a cor do escopo; tamanho e peso vêm da classe da tela. */
+[data-identidade='aipro'] :where(h1, h2, h3, h4, h5, h6) {
+  color: inherit;
+  font-family: inherit;
+}
+
+/* Controles nativos não herdam a fonte do documento: sem isto, um <button> solto
+   saía na fonte do sistema a 13,33px. */
+[data-identidade='aipro'] :where(button, input, select, textarea) {
+  font: inherit;
+}

@@ -1,0 +1,221 @@
+/* =============================================================================
+   O símbolo da Janete: o AI Spark. Um anel aberto, as letras "AI" e um brilho de quatro
+   pontas, só o desenho, na cor da marca (`currentColor`), sem disco de fundo.
+
+   Os estados são `data-estado` no elemento. A troca de um para outro é contínua: a cor,
+   as letras, os pontos e o traço do check têm `transition`, então basta mudar a prop.
+   Os keyframes moram aqui (o CSS Modules escopa o nome usado em `animation`).
+   As medidas em px dentro do desenho são unidades do viewBox, não px de tela.
+   ============================================================================= */
+
+.janete {
+  position: relative;
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  color: var(--ap-azul);
+  transition:
+    color 0.5s var(--ap-ease-out),
+    opacity 0.3s var(--ap-ease-out);
+}
+
+.desenho {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.anel {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 59;
+  stroke-linecap: round;
+}
+
+.letras {
+  fill: currentColor;
+  transform-origin: 603px 649px;
+  transition:
+    opacity 0.26s var(--ap-ease-out),
+    transform 0.42s var(--ap-ease-travessia);
+}
+
+.brilho {
+  fill: currentColor;
+  transform-origin: 882px 361px;
+}
+
+/* Os três pontos de quando ela fala: nascem do centro de cada um. */
+.pontos circle {
+  fill: currentColor;
+  transform-box: fill-box;
+  transform-origin: center;
+  transform: scale(0);
+  transition: transform 0.32s var(--ap-ease-snap);
+}
+
+/* O check, desenhado no lugar do "AI". */
+.check {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 64;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 450;
+  stroke-dashoffset: 450;
+  opacity: 0;
+  transition:
+    stroke-dashoffset 0.26s var(--ap-ease-snap),
+    opacity 0.1s linear 0.2s;
+}
+
+/* ---------- dormindo: cinza e parado ---------- */
+
+.janete[data-estado='dormindo'] {
+  color: var(--ap-tinta-3);
+}
+
+/* ---------- acordada: o brilho respira ---------- */
+
+.janete[data-estado='acordada'] .brilho {
+  animation: respira 4.2s var(--ap-ease) infinite;
+}
+
+/* ---------- carregando: o brilho gira ---------- */
+
+.janete[data-estado='carregando'] .brilho {
+  animation: carrega 1.4s var(--ap-ease) infinite;
+}
+
+/* ---------- check: o "AI" some e o traço é desenhado ---------- */
+
+.janete[data-estado='check'] {
+  animation: pop 0.55s var(--ap-ease-out) 0.1s;
+}
+
+.janete[data-estado='check'] .letras {
+  opacity: 0;
+  transform: scale(0.6);
+}
+
+.janete[data-estado='check'] .check {
+  opacity: 1;
+  stroke-dashoffset: 0;
+  transition:
+    stroke-dashoffset 0.5s var(--ap-ease-out) 0.18s,
+    opacity 0.1s linear 0.1s;
+}
+
+/* ---------- fala: o "AI" dá lugar a três pontos ----------
+   `[data-janete-gatilho]` num pai (o botão do canto) faz o mesmo no hover e no foco. */
+
+.janete[data-estado='fala'] .letras,
+[data-janete-gatilho]:hover .janete:not([data-estado='check']) .letras,
+[data-janete-gatilho]:focus-visible .janete:not([data-estado='check']) .letras {
+  opacity: 0;
+  transform: scale(0.6);
+}
+
+.janete[data-estado='fala'] .pontos circle,
+[data-janete-gatilho]:hover .janete:not([data-estado='check']) .pontos circle,
+[data-janete-gatilho]:focus-visible .janete:not([data-estado='check']) .pontos circle {
+  transform: scale(1);
+  transition: transform 0.38s var(--ap-ease-spring);
+}
+
+.janete[data-estado='fala'] .pontos circle:nth-child(2),
+[data-janete-gatilho]:hover .janete .pontos circle:nth-child(2),
+[data-janete-gatilho]:focus-visible .janete .pontos circle:nth-child(2) {
+  transition-delay: 0.05s;
+}
+
+.janete[data-estado='fala'] .pontos circle:nth-child(3),
+[data-janete-gatilho]:hover .janete .pontos circle:nth-child(3),
+[data-janete-gatilho]:focus-visible .janete .pontos circle:nth-child(3) {
+  transition-delay: 0.1s;
+}
+
+/* Digitando: os três pontos pulam em onda. */
+.janete[data-estado='fala'][data-digitando] .pontos circle {
+  animation: pula 1.1s var(--ap-ease) infinite;
+}
+
+.janete[data-estado='fala'][data-digitando] .pontos circle:nth-child(2) {
+  animation-delay: 0.11s;
+}
+
+.janete[data-estado='fala'][data-digitando] .pontos circle:nth-child(3) {
+  animation-delay: 0.22s;
+}
+
+/* ---------- keyframes ---------- */
+
+@keyframes respira {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+@keyframes carrega {
+  0% {
+    transform: rotate(0deg) scale(1);
+  }
+  50% {
+    transform: rotate(180deg) scale(0.86);
+  }
+  100% {
+    transform: rotate(360deg) scale(1);
+  }
+}
+
+@keyframes pop {
+  0% {
+    transform: scale(1);
+  }
+  35% {
+    transform: scale(1.07);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes pula {
+  0%,
+  60%,
+  100% {
+    translate: 0 0;
+  }
+  30% {
+    translate: 0 -70px;
+  }
+}
+
+/* Movimento reduzido: estado final no primeiro quadro (a troca de estado continua
+   acontecendo, só que sem percurso e sem laço). */
+@media (prefers-reduced-motion: reduce) {
+  .janete,
+  .janete *,
+  .janete *::before,
+  .janete *::after {
+    animation-duration: 1ms !important;
+    animation-delay: 0s !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+    transition-delay: 0s !important;
+  }
+
+  /* Sem o laço, o carregando ficaria igual ao acordada. O brilho fica parado no meio do
+     giro (menor e mais apagado): um sinal estático de que algo está em andamento. */
+  .janete[data-estado='carregando'] .brilho {
+    animation: none;
+    transform: rotate(45deg) scale(0.86);
+    opacity: 0.7;
+  }
+}

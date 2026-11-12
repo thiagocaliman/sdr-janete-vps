@@ -1,0 +1,67 @@
+/* O símbolo em trânsito entre telas (`.sobrevoo` e `.voo` do F-Final.dc.html).
+   `[data-voo-janete]` dá peso para esta `transition` vencer a do `.janete` do JaneteSimbolo.
+   As durações vêm no style (o voo comum é 840 ms, o longo 950 ms; pousar é 0 ms). */
+
+.voo[data-voo-janete] {
+  position: fixed;
+  z-index: 80;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  transition-property: left, top, width, height, opacity;
+  transition-timing-function:
+    var(--ap-ease-travessia), var(--ap-ease-travessia), var(--ap-ease-travessia), var(--ap-ease-travessia),
+    var(--ap-ease-out);
+}
+
+.voo[data-voo-janete].some {
+  opacity: 0;
+}
+
+/* "Preparando o seu espaço": o `.meta-texto` do F, que acompanha o símbolo. */
+.legenda {
+  position: fixed;
+  z-index: 80;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  width: min(24rem, calc(100vw - 32px));
+  text-align: center;
+  pointer-events: none;
+  transition-property: left, top, opacity;
+  transition-timing-function: var(--ap-ease-travessia), var(--ap-ease-travessia), var(--ap-ease-snap);
+  animation: entra 0.45s var(--ap-ease-out) 0.2s backwards;
+}
+
+.legenda b {
+  font-size: 1.0625rem;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--ap-tinta);
+}
+
+.legenda span {
+  font-size: 0.84375rem;
+  line-height: 1.45;
+  color: var(--ap-tinta-2);
+}
+
+.legenda.sai {
+  opacity: 0;
+}
+
+@keyframes entra {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 6px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .voo[data-voo-janete],
+  .legenda {
+    transition-duration: 1ms !important;
+    animation: none;
+  }
+}

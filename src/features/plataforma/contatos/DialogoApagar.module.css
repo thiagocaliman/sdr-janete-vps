@@ -1,0 +1,108 @@
+/* O diálogo de apagar contato (o do Contatos 4, sem a caixa rosa). Branco sobre o véu, a lista do que
+   some em texto simples, e o vermelho só no "Apagar para sempre" (o Botao perigo do AI PRO). */
+
+.daVeu {
+  position: fixed;
+  inset: 0;
+  z-index: calc(var(--ap-z-modal) + 10);
+  display: grid;
+  place-items: center;
+  padding: var(--ap-esp-4);
+  background: var(--ap-veu);
+  animation: da-aparece 240ms var(--ap-ease-out) backwards;
+}
+
+.daDialogo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ap-esp-4);
+  width: min(460px, 100%);
+  max-height: calc(100dvh - 32px);
+  overflow-y: auto;
+  padding: var(--ap-esp-6);
+  border-radius: var(--ap-r-card);
+  background: var(--ap-branco);
+  box-shadow: var(--ap-sombra-flutuante);
+  color: var(--ap-tinta);
+  animation: da-dialogo 420ms var(--ap-ease-out) backwards;
+}
+
+.daTitulo {
+  margin: 0;
+  font-size: var(--ap-fs-cartao);
+  font-weight: var(--ap-peso-forte);
+  line-height: var(--ap-lh-cartao);
+  letter-spacing: var(--ap-ls-secao);
+  overflow-wrap: anywhere;
+}
+
+.daTexto,
+.daNota {
+  margin: 0;
+  color: var(--ap-tinta-2);
+  font-size: var(--ap-fs-apoio);
+  line-height: 1.5;
+  text-wrap: pretty;
+}
+
+.daLista {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.daItem {
+  display: grid;
+  grid-template-columns: 16px minmax(0, 1fr);
+  gap: 10px;
+  align-items: start;
+  font-size: var(--ap-fs-corpo);
+  line-height: 1.45;
+}
+
+/* O ícone fica no cinza da tinta: a cor de alerta é só do botão final. */
+.daIcone {
+  margin-top: 2px;
+  color: var(--ap-tinta-3);
+}
+
+.daAcoes {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--ap-esp-2);
+  margin-top: var(--ap-esp-1);
+}
+
+@media (max-width: 899px) {
+  .daDialogo {
+    padding: var(--ap-esp-5);
+  }
+
+  .daAcoes > * {
+    flex: 1 1 auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .daVeu,
+  .daDialogo {
+    animation: none;
+  }
+}
+
+@keyframes da-aparece {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes da-dialogo {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+}

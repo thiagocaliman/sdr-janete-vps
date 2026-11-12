@@ -1,0 +1,207 @@
+/* =============================================================================
+   O palco do login (proposta A, "Presença"): a Janete, dormindo, é o símbolo dela gigante (o anel
+   aberto e o brilho, em cinza) atrás do cartão, e o cartão fica no meio do anel, no lugar do "AI".
+   As animações são do JS (WAAPI); aqui ficam só as formas e o que cada fase esconde.
+   ============================================================================= */
+
+.cena {
+  /* Lado do disco. O JS grava o valor exato em --d (no style do main): max(86% da altura, diagonal
+     do cartão + 96 px), com teto de 150vw (200vw no celular). Este é só o de partida. */
+  --d: max(min(86vh, 960px, 150vw), 48rem);
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: 100vh;
+  min-height: 100dvh;
+  margin: 0;
+  padding: 40px 16px;
+  overflow: hidden;
+  overflow: clip;
+  background: var(--aipro-carbon);
+}
+
+/* O `html { scrollbar-gutter: stable }` do base.css reserva 15 px de barra no computador, e o body é
+   branco: sem isto, a faixa da direita fica branca ao lado do fundo do palco. A reserva fica (o login
+   rola em janela baixa, e ela evita o cartão andar de lado); só o body pinta o mesmo fundo, como na
+   plataforma (Plataforma.module.css). */
+:global(body):has(.cena) {
+  background: var(--aipro-carbon);
+}
+
+/* O fim da passagem trava a rolagem da página, como no protótipo. */
+html:has(.cena[data-fase='fim']) {
+  overflow: hidden;
+}
+
+.palco {
+  position: relative;
+  width: min(100%, 26.5rem);
+}
+
+/* A Janete gigante: decorativa, atrás do cartão, centrada nele (rola junto, nunca sai de trás). */
+.gigante {
+  position: absolute;
+  z-index: 0;
+  top: 50%;
+  left: 50%;
+  width: var(--d);
+  height: var(--d);
+  margin: calc(var(--d) / -2) 0 0 calc(var(--d) / -2);
+  perspective: 1800px;
+  pointer-events: none;
+}
+
+/* Recebe a leve inclinação com o cursor e o tremor (JS, no style). */
+.discoPos {
+  width: 100%;
+  height: 100%;
+  will-change: transform;
+}
+
+/* O símbolo gigante (o `dormindo`): cresce na entrada e se contrai na passagem. Sem fundo: só o anel
+   aberto e o brilho, num cinza pouco acima do fundo, com o cartão no meio do anel. */
+.disco {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  color: color-mix(in srgb, var(--aipro-carbon-raised) 84%, white);
+  will-change: transform;
+}
+
+/* O anel e o brilho. As medidas são unidades do desenho (o mesmo traço de 59 do símbolo). */
+.traco {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.traco path {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 59;
+  stroke-linecap: round;
+}
+
+.traco path[data-brilho] {
+  fill: currentColor;
+  stroke: none;
+}
+
+/* A cor da marca por cima do cinza (o mesmo desenho, em laranja); só aparece no fim da passagem. */
+.noite {
+  position: absolute;
+  inset: 0;
+  color: var(--ap-azul);
+  opacity: 0;
+}
+
+/* O "AI" do meio do anel: é dele que o cartão nasce, e é nele que o cartão se fecha. Some enquanto o
+   cartão está aberto. */
+.ponto {
+  position: absolute;
+  top: 27%;
+  left: 27%;
+  width: 46%;
+  height: 46%;
+  color: var(--ap-borda-campo);
+  opacity: 0;
+  transition: opacity 0.18s var(--ap-ease-out);
+}
+
+.letras {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  fill: currentColor;
+}
+
+/* O laranja do "AI" no `carregando`, por cima do cinza (anima só a opacidade). */
+.pontoAzul {
+  position: absolute;
+  inset: 0;
+  color: var(--ap-azul);
+  opacity: 0;
+}
+
+/* A sombra segue a forma do cartão. Enquanto o cartão se recorta (`data-plano`), o filtro sai na hora. */
+.sombra {
+  position: relative;
+  z-index: 1;
+  filter: drop-shadow(0 1px 2px rgb(0 0 0 / 0.08)) drop-shadow(0 24px 40px rgb(0 0 0 / 0.24));
+  transition: filter 0.3s var(--ap-ease-out);
+}
+
+.sombra[data-plano] {
+  filter: none;
+  transition: none;
+}
+
+/* Três cantos grandes e o de baixo à esquerda reto (a forma em que o cartão abre e fecha). */
+.cartao {
+  position: relative;
+  padding: 40px 32px 32px;
+  border-radius: 28px 28px 28px 0;
+  background: var(--ap-branco);
+}
+
+.conteudo {
+  position: relative;
+}
+
+/* O véu: o cinza do "AI" por cima do cartão enquanto ele abre e fecha (anima só a opacidade). */
+.veu {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--ap-borda-campo);
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* O que cada fase esconde: antes do primeiro efeito, nada aparece (nem no HTML do servidor); na
+   entrada e na absorção o cartão some; no fim, o carregando assume e a bola some também. */
+.cena[data-fase='inicio'] .gigante,
+.cena[data-fase='inicio'] .sombra,
+.cena[data-fase='entrada'] .sombra,
+.cena[data-fase='absorvido'] .sombra,
+.cena[data-fase='fim'] .sombra,
+.cena[data-fase='fim'] .gigante {
+  visibility: hidden;
+}
+
+/* O fim do Entrar: o `carregando` de 96 px do próprio palco, fixo no ponto medido.
+   `[data-palco-carregando]` dá peso para vencer o `position` do `.janete`. Ele recebe o foco (só
+   para o leitor de tela anunciar), sem anel de foco. */
+.carregando[data-palco-carregando] {
+  position: fixed;
+  z-index: 80;
+  transform: translate(-50%, -50%);
+  outline: none;
+  pointer-events: none;
+}
+
+@media (max-width: 599px) {
+  /* Celular: maior que a largura (741 px em 390), saindo pelas bordas. */
+  .cena {
+    --d: max(min(92vh, 200vw), 44rem);
+    padding: 24px 16px;
+  }
+
+  .cartao {
+    padding: 28px 20px 24px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sombra,
+  .ponto {
+    transition: none;
+  }
+}

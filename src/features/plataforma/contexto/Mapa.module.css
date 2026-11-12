@@ -1,0 +1,396 @@
+/* O mapa do Método D.A.T.A.: quatro camadas em linha, cada uma com o ícone, a letra, o nome e a
+   pergunta-guia à esquerda e os campos dela à direita, ligados por curvas. Branco, laranja e preto. */
+
+.mapa {
+  --mp-apagada: var(--ap-linha-forte);
+
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ---------- a camada ---------- */
+
+.camada {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(280px, 400px) minmax(0, 1fr);
+  column-gap: 110px;
+  align-items: center;
+  padding: 24px 0;
+  animation: mapa-entra 0.5s var(--ap-ease-out) backwards;
+  animation-delay: calc(var(--i, 0) * 60ms);
+}
+
+.camada + .camada {
+  border-top: 1px solid var(--ap-linha);
+}
+
+.titulo {
+  margin: 0;
+  font: inherit;
+}
+
+.rotulo {
+  display: grid;
+  grid-template-columns: 56px auto minmax(0, 1fr);
+  column-gap: 16px;
+  align-items: center;
+  width: 100%;
+  padding: 8px;
+  margin: -8px;
+  border: 0;
+  border-radius: 20px;
+  background: none;
+  color: var(--ap-tinta);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.rotulo:hover {
+  background: var(--ap-canvas);
+}
+
+.rotulo:focus-visible {
+  outline: 2px solid var(--ap-azul);
+  outline-offset: 2px;
+}
+
+.quadro {
+  display: grid;
+  width: 56px;
+  height: 56px;
+  place-items: center;
+  border-radius: 16px;
+  background: var(--ap-azul-claro);
+  color: var(--ap-azul);
+  transition:
+    background-color 0.2s,
+    color 0.2s;
+}
+
+.rotulo:hover .quadro,
+.rotulo:focus-visible .quadro {
+  background: var(--ap-azul);
+  color: var(--ap-sobre-cor, #fff);
+}
+
+.letra {
+  min-width: 0.7em;
+  font-size: 48px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+.textos {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.nome {
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.guia {
+  color: var(--ap-tinta-2);
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+/* ---------- os campos ---------- */
+
+.nos {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.no {
+  display: inline-flex;
+  max-width: 100%;
+  align-items: center;
+  gap: 10px;
+  padding: 5px 14px 5px 5px;
+  border: 1px solid var(--ap-linha);
+  border-radius: 999px;
+  background: var(--ap-branco);
+  color: var(--ap-tinta);
+  font: inherit;
+  font-size: 14px;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s,
+    transform 0.2s var(--ap-ease-out);
+}
+
+.no:hover {
+  border-color: var(--ap-tinta-3);
+  box-shadow: var(--ap-sombra-card);
+  transform: translateX(2px);
+}
+
+.no:focus-visible {
+  outline: 2px solid var(--ap-azul);
+  outline-offset: 2px;
+}
+
+.no[data-situacao='vazio'] {
+  border-style: dashed;
+  border-color: var(--mp-apagada);
+  background: transparent;
+  color: var(--ap-tinta-2);
+}
+
+.no[data-situacao='nao_salvo'] {
+  border-color: var(--ap-azul);
+}
+
+/* Numa versão antiga, o que está diferente da atual ganha um traço à esquerda. */
+.no[data-muda] {
+  box-shadow: -3px 0 0 var(--ap-atencao);
+}
+
+.bola {
+  display: grid;
+  flex: none;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--ap-tinta);
+  color: var(--ap-branco);
+}
+
+.bola[data-situacao='vazio'] {
+  border: 1px dashed var(--mp-apagada);
+  background: transparent;
+  color: var(--ap-tinta-3);
+}
+
+.bola[data-situacao='nao_salvo'] {
+  background: var(--ap-azul);
+  color: var(--ap-sobre-cor, #fff);
+  box-shadow: 0 0 0 3px var(--ap-azul-claro);
+}
+
+.noNome {
+  overflow: hidden;
+  min-width: 0;
+  font-weight: 500;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.noEstado {
+  flex: none;
+  color: var(--ap-tinta-3);
+  font-size: 12px;
+}
+
+.no[data-situacao='nao_salvo'] .noEstado {
+  color: var(--aipro-orange-text, var(--ap-azul));
+  font-weight: 600;
+}
+
+.noMais,
+.noNovo {
+  border-style: dashed;
+  border-color: var(--mp-apagada);
+  background: transparent;
+  color: var(--ap-tinta-2);
+}
+
+.noMais {
+  padding: 9px 14px;
+  font-size: 13px;
+}
+
+.noNovo[data-desligado] {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.noNovo[data-desligado]:hover {
+  border-color: var(--mp-apagada);
+  box-shadow: none;
+  transform: none;
+}
+
+.motivo {
+  max-width: 34ch;
+  color: var(--ap-tinta-2);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+/* ---------- as curvas ---------- */
+
+.fios {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  pointer-events: none;
+}
+
+.svg {
+  display: block;
+  overflow: visible;
+}
+
+.fio {
+  fill: none;
+  stroke: var(--ap-tinta);
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  opacity: 0.5;
+  animation: mapa-fio 0.6s 0.25s var(--ap-ease-out) backwards;
+  transition: opacity 0.25s;
+}
+
+.fio[data-situacao='vazio'] {
+  stroke: var(--mp-apagada);
+  opacity: 1;
+}
+
+.fio[data-situacao='nao_salvo'] {
+  stroke: var(--ap-azul);
+  stroke-width: 1.8;
+  opacity: 1;
+}
+
+.eixo {
+  fill: var(--ap-tinta);
+  animation: mapa-fio 0.6s 0.25s var(--ap-ease-out) backwards;
+  transition: opacity 0.25s;
+}
+
+/* Com uma camada em foco, as curvas das outras recuam. */
+.mapa[data-ativa] .fio,
+.mapa[data-ativa] .eixo {
+  opacity: 0.18;
+}
+
+.mapa[data-ativa='descricao'] [data-de='descricao'],
+.mapa[data-ativa='acao'] [data-de='acao'],
+.mapa[data-ativa='treinamento'] [data-de='treinamento'],
+.mapa[data-ativa='atencao'] [data-de='atencao'] {
+  opacity: 1;
+}
+
+.raio {
+  fill: none;
+  stroke: var(--ap-azul);
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  animation: mapa-raio 1.1s ease-out both;
+}
+
+/* ---------- telas menores ---------- */
+
+@media (max-width: 1180px) {
+  .camada {
+    grid-template-columns: minmax(240px, 320px) minmax(0, 1fr);
+    column-gap: 80px;
+  }
+
+  .letra {
+    font-size: 40px;
+  }
+}
+
+.mapa[data-estreita] .camada {
+  grid-template-columns: minmax(0, 1fr);
+  row-gap: 16px;
+  padding: 20px 0;
+}
+
+.mapa[data-estreita] .rotulo {
+  grid-template-columns: 48px auto minmax(0, 1fr);
+  column-gap: 12px;
+}
+
+.mapa[data-estreita] .quadro {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+}
+
+.mapa[data-estreita] .letra {
+  font-size: 36px;
+}
+
+.mapa[data-estreita] .nos {
+  align-items: stretch;
+}
+
+.mapa[data-estreita] .no {
+  min-height: 44px;
+}
+
+.mapa[data-estreita] .noEstado {
+  margin-left: auto;
+}
+
+@keyframes mapa-entra {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+@keyframes mapa-fio {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes mapa-raio {
+  0% {
+    opacity: 0;
+  }
+
+  20% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .camada,
+  .fio,
+  .eixo,
+  .raio {
+    animation: none;
+  }
+
+  .no,
+  .rotulo,
+  .quadro,
+  .fio,
+  .eixo {
+    transition: none;
+  }
+
+  .no:hover {
+    transform: none;
+  }
+
+  .raio {
+    opacity: 0;
+  }
+}

@@ -1,0 +1,104 @@
+.recolhivel {
+  min-width: 0;
+  border-radius: var(--ap-r-card);
+  color: var(--ap-tinta);
+  font-family: var(--ap-fonte);
+}
+
+.recolhivel[data-superficie='cartao'] {
+  background: var(--ap-branco);
+  box-shadow: var(--ap-sombra-card);
+}
+
+.resumo {
+  display: flex;
+  align-items: center;
+  gap: var(--ap-esp-3);
+  min-height: 56px;
+  padding: var(--ap-esp-2) var(--ap-pad-card);
+  border-radius: inherit;
+  list-style: none;
+  cursor: pointer;
+  transition: background-color var(--app-t-state);
+}
+
+.resumo::-webkit-details-marker {
+  display: none;
+}
+
+.recolhivel[data-superficie='nenhuma'] .resumo {
+  padding-inline: var(--ap-esp-3);
+}
+
+/* Aberto, o cabeçalho perde os cantos de baixo: o corpo continua a mesma superfície. */
+.recolhivel[open] > .resumo {
+  border-end-start-radius: 0;
+  border-end-end-radius: 0;
+}
+
+.resumo:hover {
+  background: var(--ap-canvas);
+}
+
+.resumo:focus-visible {
+  outline: 2px solid transparent;
+  box-shadow: var(--ap-anel);
+}
+
+.titulo {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: var(--ap-fs-cartao);
+  font-weight: var(--ap-peso-forte);
+  line-height: var(--ap-lh-cartao);
+  letter-spacing: var(--ap-ls-secao);
+}
+
+/* Com `apoio` (P-portal-4): título e linha de apoio empilhados no lugar do título. */
+.textos {
+  display: grid;
+  flex: 1 1 auto;
+  gap: 2px;
+  min-width: 0;
+}
+
+.apoio {
+  color: var(--ap-tinta-2);
+  font-size: var(--ap-fs-apoio);
+  font-weight: var(--ap-peso-regular);
+  line-height: var(--ap-lh-ui);
+  letter-spacing: var(--ap-ls-corpo);
+}
+
+.contagem {
+  flex: none;
+  color: var(--ap-tinta-3);
+  font-family: var(--ap-fonte-mono);
+  font-size: var(--ap-fs-meta);
+  font-variant-numeric: tabular-nums;
+}
+
+.chevron {
+  flex: none;
+  color: var(--ap-tinta-2);
+  transition: transform var(--app-t-touch);
+}
+
+.recolhivel[open] > .resumo .chevron {
+  transform: rotate(180deg);
+}
+
+.corpo {
+  padding: var(--ap-esp-2) var(--ap-pad-card) var(--ap-pad-card);
+}
+
+.recolhivel[data-superficie='nenhuma'] .corpo {
+  padding-inline: var(--ap-esp-3);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .resumo,
+  .chevron {
+    transition: none;
+  }
+}

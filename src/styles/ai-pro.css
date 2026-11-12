@@ -1,0 +1,189 @@
+/* Identidade AI PRO. Os nomes --ap-* continuam
+   compatíveis com os componentes existentes; os valores visuais vêm desta camada. */
+@font-face {
+  font-family: 'Geist';
+  src: url('/fonts/Geist-Variable.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Geist Mono';
+  src: url('/fonts/GeistMono-Variable.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+html:root {
+  --aipro-carbon: #0a0a0a;
+  --aipro-carbon-raised: #1b1b20;
+  --aipro-orange: #ff551b;
+  --aipro-orange-hover: #f0440d;
+  /* Variante mais escura para textos pequenos e foco sobre superfícies claras. */
+  --aipro-orange-text: #ad310b;
+
+  --ap-azul: var(--aipro-orange);
+  --ap-azul-texto: var(--aipro-orange-text);
+  --ap-azul-claro: #ffede6;
+  --ap-azul-nevoa: #fff6f2;
+  --ap-navy: var(--aipro-carbon-raised);
+  --ap-navy-2: #303036;
+  --ap-palco: var(--aipro-carbon);
+  --ap-tinta: var(--aipro-carbon-raised);
+  --ap-tinta-2: #525258;
+  --ap-tinta-3: #66666e;
+  --ap-canvas: #f5f5f6;
+  --ap-linha: #e7e7eb;
+  --ap-linha-forte: #d6d6dc;
+  --ap-borda-campo: #85858e;
+  --ap-grafite: var(--aipro-carbon-raised);
+  --ap-palco-tinta-2: #c4c4cc;
+  --ap-esqueleto: #ececef;
+  --ap-esqueleto-brilho: #f7f7f9;
+  --ap-fonte: 'Geist', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --ap-fonte-mono: 'Geist Mono', ui-monospace, SFMono-Regular, monospace;
+  --ap-anel: 0 0 0 2px var(--ap-branco), 0 0 0 4px var(--aipro-orange-text);
+
+  /* A superfície genérica de erros/404 usa os tokens Tailwind em OKLCH. */
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.22 0.009 285);
+  --primary: oklch(0.22 0.009 285);
+  --primary-foreground: oklch(1 0 0);
+  --ring: oklch(0.5 0.17 36);
+
+  /* Texto e traço sobre preenchimento escuro ou laranja: branco nos dois temas. */
+  --ap-sobre-cor: #ffffff;
+  /* Fundo das colunas do Kanban e das miniaturas de mídia. */
+  --ap-coluna: color-mix(in srgb, #e9edf3 55%, var(--ap-canvas));
+  --ap-midia-fundo: #d9e7f5;
+  --ap-midia-fundo-2: #e6e1d8;
+}
+
+/* Modo escuro (lib/tema.ts). Mesmos papéis, valores invertidos: --ap-branco é a superfície
+   (card), --ap-canvas o fundo da página, --ap-tinta o texto. O --ap-navy continua sendo um
+   preenchimento escuro com texto branco, só mais claro que as superfícies para se destacar.
+   Contraste do texto sobre o card (#18181c): tinta 15,2:1, tinta-2 7,6:1, tinta-3 5,3:1. */
+html:root[data-tema='escuro'] {
+  color-scheme: dark;
+
+  --aipro-orange-text: #ff8a5c;
+
+  --ap-canvas: #0e0e11;
+  --ap-branco: #18181c;
+  --ap-tinta: #ededf0;
+  --ap-tinta-2: #b0b0b8;
+  --ap-tinta-3: #8f8f99;
+  --ap-linha: #2a2a31;
+  --ap-linha-forte: #3a3a43;
+  --ap-borda-campo: #75757f;
+
+  --ap-navy: #34343c;
+  --ap-navy-2: #45454e;
+  --ap-grafite: #26262c;
+
+  --ap-azul-claro: #3a1d12;
+  --ap-azul-nevoa: #24160f;
+
+  --ap-rosa: #3a2230;
+  --ap-menta: #15302a;
+  --ap-areia: #352a14;
+
+  --ap-sucesso: #4cc38a;
+  --ap-atencao: #e3b45a;
+  --ap-erro: #ff8a7a;
+  --ap-erro-claro: #3a1a17;
+
+  --ap-esqueleto: #222228;
+  --ap-esqueleto-brilho: #2c2c33;
+
+  --ap-sombra-card: 0 1px 2px rgb(0 0 0 / 0.4);
+  --ap-sombra-flutuante: 0 24px 48px -16px rgb(0 0 0 / 0.7), 0 2px 6px rgb(0 0 0 / 0.4);
+  --ap-sombra-acao: 0 12px 26px -16px rgb(0 0 0 / 0.8);
+  --ap-veu: rgb(0 0 0 / 0.6);
+  --ap-palco-superficie: rgb(255 255 255 / 0.08);
+  --ap-palco-superficie-forte: rgb(255 255 255 / 0.16);
+  --ap-palco-linha: rgb(255 255 255 / 0.14);
+
+  --ap-coluna: #141418;
+  --ap-midia-fundo: #2a3340;
+  --ap-midia-fundo-2: #33302b;
+
+  --background: oklch(0.17 0.005 285);
+  --foreground: oklch(0.94 0.003 285);
+  --primary: oklch(0.94 0.003 285);
+  --primary-foreground: oklch(0.17 0.005 285);
+}
+
+body {
+  font-family: var(--ap-fonte);
+}
+
+.aipro-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  color: var(--ap-tinta);
+  text-align: left;
+}
+
+.aipro-brand--inverse {
+  color: #fff;
+}
+
+.aipro-brand__symbol {
+  display: block;
+  flex: none;
+  border-radius: 22%;
+  object-fit: contain;
+}
+
+.aipro-brand__name {
+  display: grid;
+  gap: 3px;
+}
+
+.aipro-brand__maker {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font: 700 10px/1 var(--ap-fonte);
+  letter-spacing: 0.14em;
+  white-space: nowrap;
+}
+
+.aipro-brand__maker::before {
+  content: '';
+  width: 12px;
+  height: 3px;
+  background: var(--aipro-orange);
+}
+
+.aipro-brand__product {
+  font: 650 20px/1 var(--ap-fonte);
+  letter-spacing: -0.04em;
+  white-space: nowrap;
+}
+
+/* Ação principal laranja da marca. Texto grafite garante contraste. */
+[data-identidade='aipro'] [data-variante='principal']:not(:disabled) {
+  background: var(--aipro-orange);
+  color: var(--aipro-carbon);
+}
+
+[data-identidade='aipro'] [data-variante='principal']:not(:disabled):hover,
+[data-identidade='aipro'] [data-variante='principal']:not(:disabled):active {
+  background: var(--aipro-orange-hover);
+}
+
+@media (max-width: 599px) {
+  .aipro-brand {
+    gap: 8px;
+  }
+
+  .aipro-brand__product {
+    font-size: 18px;
+  }
+}

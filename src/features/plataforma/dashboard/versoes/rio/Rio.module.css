@@ -1,0 +1,292 @@
+/* O rio de leads: o desenho do funil do período na versão "rio" do Dashboard.
+   As cores são as da identidade (--ap-*): laranja em andamento, verde venda, vermelho perdido,
+   cinza parado sem resposta. O canvas lê as mesmas variáveis. */
+
+.cabecalho {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px 24px;
+}
+
+.titulo {
+  margin: 0;
+  font-size: var(--ap-fs-cartao);
+  font-weight: var(--ap-peso-forte);
+  line-height: 22px;
+  letter-spacing: var(--ap-ls-secao);
+}
+
+.ancora {
+  margin: 2px 0 0;
+  color: var(--ap-tinta-2);
+  font-size: var(--ap-fs-apoio);
+  line-height: 20px;
+}
+
+.legenda {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  margin: 2px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.legendaItem,
+.quedaLinha {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--ap-tinta-2);
+  font-size: var(--ap-fs-meta);
+  line-height: 18px;
+}
+
+.amostra {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--ap-azul);
+}
+
+.amostra[data-tom='ganho'] {
+  background: var(--ap-sucesso);
+}
+
+.amostra[data-tom='perdido'] {
+  background: var(--ap-erro);
+}
+
+.amostra[data-tom='parado'] {
+  background: var(--ap-tinta-3);
+}
+
+/* ---------- o palco do rio ---------- */
+
+.palco {
+  position: relative;
+  margin-top: 18px;
+}
+
+/* No computador o canvas cobre as etapas inteiras e o rio corre na faixa do leito. */
+.tela {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.etapas {
+  position: relative;
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.etapa {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: 0 10px;
+}
+
+.etapa:first-child {
+  padding-left: 0;
+}
+
+.cabeca {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  min-width: 0;
+  margin: 0 0 0 -8px;
+  padding: 6px 8px 8px;
+  border: 0;
+  border-radius: 14px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color var(--app-t-state);
+}
+
+.cabeca:hover {
+  background: var(--ap-azul-nevoa);
+}
+
+.cabeca:focus-visible {
+  outline: none;
+  box-shadow: var(--ap-anel);
+}
+
+.nome {
+  overflow: hidden;
+  max-width: 100%;
+  color: var(--ap-tinta-2);
+  font-size: 0.8125rem;
+  font-weight: var(--ap-peso-medio);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cabeca .numero {
+  font-size: 2.25rem;
+  line-height: 1.1;
+  letter-spacing: -0.035em;
+}
+
+.etapa[data-ganho] .cabeca .numero {
+  color: var(--ap-sucesso);
+}
+
+.conv {
+  min-height: 18px;
+  color: var(--ap-tinta-2);
+  font-size: var(--ap-fs-meta);
+  line-height: 18px;
+}
+
+/* A faixa reservada para a correnteza (o canvas mede este elemento). */
+.leito {
+  display: block;
+  height: 190px;
+  margin-top: 8px;
+}
+
+.palco[data-vazio] .leito {
+  height: 72px;
+}
+
+.queda {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-height: 56px;
+  padding-top: 8px;
+}
+
+.quedaLinha {
+  white-space: nowrap;
+}
+
+.quedaForte {
+  color: var(--ap-tinta);
+  font-weight: var(--ap-peso-forte);
+}
+
+.vazio {
+  margin: 4px 0 0;
+  color: var(--ap-tinta-2);
+  font-size: var(--ap-fs-apoio);
+  text-align: center;
+}
+
+.saidas {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 36px;
+  margin: 10px 0 0 -10px;
+  padding: 6px 10px;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--ap-tinta-2);
+  font: inherit;
+  font-size: var(--ap-fs-apoio);
+  text-align: left;
+  cursor: pointer;
+  transition: background-color var(--app-t-state);
+}
+
+.saidas:hover {
+  background: var(--ap-azul-nevoa);
+  color: var(--ap-tinta);
+}
+
+.saidas:focus-visible {
+  outline: none;
+  box-shadow: var(--ap-anel);
+}
+
+.pergunte {
+  margin-top: 14px;
+}
+
+.dica {
+  margin: 16px auto 0;
+}
+
+@media (max-width: 1279px) {
+  .cabeca .numero {
+    font-size: 1.875rem;
+  }
+
+  .quedaLinha {
+    white-space: normal;
+  }
+}
+
+/* ---------- o celular: o rio em cima, as etapas em lista ---------- */
+
+.palco[data-modo='celular'] .tela {
+  position: static;
+  height: 150px;
+  border-radius: 14px;
+  background: var(--ap-canvas);
+}
+
+.palco[data-modo='celular'] .etapas {
+  display: block;
+  margin-top: 8px;
+}
+
+.palco[data-modo='celular'] .etapa {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0 12px;
+  padding: 6px 0;
+  border-top: 1px solid var(--ap-linha);
+}
+
+.palco[data-modo='celular'] .etapa:first-child {
+  border-top: 0;
+}
+
+.palco[data-modo='celular'] .cabeca {
+  min-height: 44px;
+}
+
+.palco[data-modo='celular'] .cabeca .numero {
+  font-size: 1.5rem;
+}
+
+.palco[data-modo='celular'] .leito {
+  display: none;
+}
+
+.palco[data-modo='celular'] .queda {
+  align-items: flex-end;
+  min-height: 0;
+  padding-top: 0;
+}
+
+.palco[data-modo='celular'] .quedaLinha {
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cabeca,
+  .saidas {
+    transition: none;
+  }
+}

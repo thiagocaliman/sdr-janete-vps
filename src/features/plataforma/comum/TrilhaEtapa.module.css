@@ -1,0 +1,115 @@
+/* A trilha de etapa: o fio, as paradas e o ponto do lead. As cores são as do rio do Dashboard:
+   laranja em andamento, verde venda, vermelho perdido, cinza o caminho de quem saiu. */
+
+.trilha {
+  --tr-p: 0;
+  --tr-cor: var(--ap-azul);
+  --tr-feito: var(--ap-azul);
+  --tr-ponto: 14px;
+  --tr-parada: 8px;
+  --tr-borda: 2px;
+
+  position: relative;
+  display: block;
+  height: 16px;
+  /* Meio ponto de folga de cada lado: o ponto na 1ª e na última parada não sai da caixa. */
+  margin: 0 calc(var(--tr-ponto) / 2);
+}
+
+.trilha[data-tom='ganho'] {
+  --tr-cor: var(--ap-sucesso);
+  --tr-feito: var(--ap-sucesso);
+}
+
+.trilha[data-tom='perdido'] {
+  --tr-cor: var(--ap-erro);
+  --tr-feito: var(--ap-tinta-3);
+}
+
+/* Perdido sem saber onde parou: a trilha inteira em vermelho apagado, sem ponto. */
+.trilha[data-tom='perdido'][data-parada='-1'] .fio {
+  background: color-mix(in srgb, var(--ap-erro) 45%, var(--ap-linha-forte));
+}
+
+.trilha[data-tom='perdido'][data-parada='-1'] .parada {
+  border-color: color-mix(in srgb, var(--ap-erro) 60%, var(--ap-linha-forte));
+}
+
+.trilha[data-trilha='mini'] {
+  --tr-ponto: 10px;
+  --tr-parada: 6px;
+  --tr-borda: 1px;
+
+  height: 10px;
+}
+
+.fio,
+.cheio {
+  position: absolute;
+  top: calc(50% - 1px);
+  left: 0;
+  height: 2px;
+  border-radius: 1px;
+}
+
+.fio {
+  right: 0;
+  background: var(--ap-linha-forte);
+}
+
+.cheio {
+  width: calc(var(--tr-p) * 100%);
+  background: var(--tr-feito);
+  transition:
+    width 0.7s var(--ap-ease-out),
+    background-color 0.3s;
+}
+
+.parada {
+  position: absolute;
+  top: calc(50% - var(--tr-parada) / 2);
+  box-sizing: border-box;
+  width: var(--tr-parada);
+  height: var(--tr-parada);
+  margin-left: calc(var(--tr-parada) / -2);
+  border: var(--tr-borda) solid var(--ap-linha-forte);
+  border-radius: 50%;
+  background: var(--ap-branco);
+  /* A parada só acende quando o ponto chega nela. */
+  transition:
+    background-color 0.3s 0.4s,
+    border-color 0.3s 0.4s;
+}
+
+.parada[data-feita] {
+  border-color: var(--tr-feito);
+  background: var(--tr-feito);
+}
+
+.ponto {
+  position: absolute;
+  top: calc(50% - var(--tr-ponto) / 2);
+  left: calc(var(--tr-p) * 100%);
+  width: var(--tr-ponto);
+  height: var(--tr-ponto);
+  margin-left: calc(var(--tr-ponto) / -2);
+  border-radius: 50%;
+  background: var(--tr-cor);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--tr-cor) 25%, transparent);
+  transition:
+    left 0.7s var(--ap-ease-out),
+    background-color 0.3s;
+}
+
+.trilha[data-tom='perdido'] .ponto,
+.trilha[data-trilha='mini'] .ponto {
+  box-shadow: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cheio,
+  .parada,
+  .ponto {
+    transition: none;
+  }
+}

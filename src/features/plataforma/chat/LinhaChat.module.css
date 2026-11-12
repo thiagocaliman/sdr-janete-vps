@@ -1,0 +1,213 @@
+/* A linha da lista do Chat (rodada 2): a foto com as iniciais (44 px, sem o selo de quem atende), o
+   nome com a hora e a prévia com o sinal à direita. 44 px do avatar + 13 px em cima e embaixo = 70 px. */
+
+.lhLinha {
+  /* O cinza suave da linha aberta (o mesmo da LinhaConversa): entre o canvas e a linha. */
+  --lh-selecionada: color-mix(in srgb, var(--ap-linha) 57%, var(--ap-canvas));
+  /* O amarelo da espera curta. O tema só tem o âmbar escuro de texto (--ap-atencao), que não dá
+     contraste com texto escuro: este é o amarelo vivo, com a tinta navy por cima (10:1). */
+  --lh-amarelo: #f5b82e;
+
+  position: relative;
+  min-width: 0;
+  border-radius: 16px;
+  background: transparent;
+  color: var(--ap-tinta);
+  transition: background-color var(--app-t-state);
+}
+
+.lhLinha:hover {
+  background: var(--ap-canvas);
+}
+
+.lhLinha[data-selecionada] {
+  background: var(--lh-selecionada);
+}
+
+.lhAbrir {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 70px;
+  padding: 13px var(--ap-esp-3);
+  border: 0;
+  border-radius: inherit;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+/* O anel por dentro (a lista rola e cortaria um anel por fora), no azul de texto (4,99:1 no cinza da
+   linha aberta). O contorno transparente, também por dentro, aparece no alto contraste do Windows,
+   que apaga o box-shadow. */
+.lhAbrir:focus-visible {
+  outline: 2px solid transparent;
+  outline-offset: -2px;
+  box-shadow: inset 0 0 0 2px var(--ap-azul-texto);
+}
+
+/* O avatar "m" (48 px) reduzido para 44 px, com a letra acompanhando. */
+.lhAbrir .lhAvatar {
+  --al-d: 44px;
+  --al-fonte: 0.875rem;
+}
+
+.lhTxt {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.lhL1 {
+  display: flex;
+  align-items: baseline;
+  gap: var(--ap-esp-2);
+  min-width: 0;
+}
+
+.lhNome {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 1rem;
+  font-weight: var(--ap-peso-forte);
+  line-height: 1.35;
+}
+
+.lhHora {
+  flex: none;
+  color: var(--ap-tinta-3);
+  font-family: var(--ap-fonte-mono);
+  font-size: 0.8125rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.lhLinha[data-selecionada] .lhHora {
+  color: var(--ap-tinta-2);
+}
+
+/* Com não lidas: a prévia na tinta (a hora fica cinza; o número das não lidas já diz). */
+.lhLinha[data-nova] .lhPrev:not([data-tom]) {
+  color: var(--ap-tinta);
+}
+
+.lhL2 {
+  display: flex;
+  align-items: center;
+  gap: var(--ap-esp-2);
+  min-width: 0;
+}
+
+.lhPrev {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: var(--ap-esp-1);
+  min-width: 0;
+  color: var(--ap-tinta-2);
+  font-size: 0.90625rem;
+  line-height: 1.45;
+}
+
+.lhPrevTexto {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lhIcone {
+  flex: none;
+  width: 15px;
+  height: 15px;
+  color: var(--ap-tinta-3);
+}
+
+/* Lida: os dois vistos em azul (o azul de texto, que passa 3:1 como ícone). */
+.lhIcone[data-status='lida'] {
+  color: var(--ap-azul-texto);
+}
+
+.lhPrev[data-tom='digita'] {
+  color: var(--ap-azul-texto);
+  font-weight: var(--ap-peso-medio);
+}
+
+.lhPrev[data-tom='falhou'],
+.lhPrev[data-tom='falhou'] .lhIcone {
+  color: var(--ap-erro);
+  font-weight: var(--ap-peso-medio);
+}
+
+/* ---------- o sinal: o número de não lidas ou, sem elas, um ponto na cor da espera ---------- */
+
+.lhSinal {
+  display: grid;
+  flex: none;
+  place-items: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 7px;
+  border-radius: var(--ap-r-pilula);
+  background: var(--ap-navy);
+  color: var(--ap-tinta-inversa);
+  font-family: var(--ap-fonte-mono);
+  font-size: var(--ap-fs-micro);
+  font-weight: var(--ap-peso-forte);
+  font-variant-numeric: tabular-nums;
+  transition:
+    background-color 600ms var(--ap-ease-out),
+    color 600ms var(--ap-ease-out);
+}
+
+.lhSinal[data-cor='amarelo'] {
+  background: var(--lh-amarelo);
+  color: var(--ap-tinta);
+}
+
+.lhSinal[data-cor='vermelho'] {
+  background: var(--ap-erro);
+  color: var(--ap-tinta-inversa);
+}
+
+.lhSinal[data-ponto] {
+  min-width: 0;
+  width: 10px;
+  height: 10px;
+  margin-right: 6px;
+  padding: 0;
+}
+
+/* O ponto amarelo sozinho (sem número) tem pouco contraste com o branco: um contorno âmbar por dentro
+   o segura (3:1). A pílula com número já tem a tinta por cima. */
+.lhSinal[data-ponto][data-cor='amarelo'] {
+  box-shadow: inset 0 0 0 1.5px var(--ap-atencao);
+}
+
+@media (max-width: 899px) {
+  .lhAbrir {
+    min-height: 72px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lhLinha,
+  .lhSinal {
+    transition: none;
+  }
+}
+
+/* A trilha de etapa pequena, embaixo da prévia: onde o lead está no funil, sem tomar a linha. */
+.lhTrilha {
+  width: 96px;
+  max-width: 100%;
+  margin-top: 5px;
+  margin-bottom: 1px;
+}

@@ -1,0 +1,18 @@
+# AI PRO Janete: só o que o app usa, tudo preso em 127.0.0.1 (só o nginx fala com a internet).
+name: janete
+services:
+  studio: { profiles: ["desligado"] }
+  functions: { profiles: ["desligado"] }
+  supavisor: { profiles: ["desligado"] }
+  meta: { profiles: ["desligado"] }
+  imgproxy: { profiles: ["desligado"] }
+  api-gw:
+    depends_on: !reset {}
+    ports: !override
+      - "127.0.0.1:8000:8000"
+  storage:
+    depends_on: !reset
+      db: { condition: service_healthy }
+      rest: { condition: service_started }
+    environment:
+      ENABLE_IMAGE_TRANSFORMATION: "false"
