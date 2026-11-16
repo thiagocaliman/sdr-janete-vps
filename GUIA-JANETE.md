@@ -60,7 +60,9 @@ Pronto. Mande uma mensagem para o número conectado e veja a Janete responder no
 
 ## Usar com um agente de inteligência artificial
 
-Se você usa um agente com o Hostinger Connector (Claude, Codex ou outro), anexe este guia e mande:
+O caminho recomendado é o arquivo [GUIA-JANETE-AGENTE-HOSTINGER.md](GUIA-JANETE-AGENTE-HOSTINGER.md): ele foi escrito para o agente seguir, com os canais oficiais do Hostinger Connector, as regras de segurança e o pedido pronto. Anexe ele no seu agente e siga o topo do arquivo.
+
+Se preferir usar este guia mesmo, anexe e mande:
 
 > Use o Hostinger Connector para listar minhas VPS e aguarde eu escolher. Na VPS escolhida, confira se é Ubuntu 24.04, se as portas 80 e 443 estão livres ou já atendidas pelo nginx, e se o domínio que vou informar aponta para o IP dela. Depois me acompanhe no Web Console para rodar o instalador deste guia, um passo por vez. Não reinstale a VPS, não apague nada que já existe nela e não compre nenhum serviço. A criação da conta, as senhas, as chaves e o QR code do WhatsApp eu faço direto nas telas.
 

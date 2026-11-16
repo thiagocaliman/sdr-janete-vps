@@ -17,7 +17,9 @@ Tudo roda na **sua própria VPS**: o app, o banco de dados e os arquivos. Você 
 
 ## Instalar
 
-Você precisa de:
+**Jeito mais fácil: com o seu agente de IA.** Se você usa ChatGPT, Claude, Claude Code, Codex ou um editor com o **Hostinger Connector**, baixe o arquivo [GUIA-JANETE-AGENTE-HOSTINGER.md](GUIA-JANETE-AGENTE-HOSTINGER.md), anexe numa conversa nova e mande o pedido que está no topo dele. O agente lista as suas VPS, aponta o subdomínio e te acompanha no Web Console, um passo por vez.
+
+Para fazer sozinho, você precisa de:
 
 1. Uma VPS **Ubuntu 24.04** (na Hostinger, a KVM 2 ou maior).
 2. Um **domínio ou subdomínio** apontando para o IP da VPS (registro A), por exemplo `janete.seudominio.com.br`.
