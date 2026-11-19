@@ -28,7 +28,13 @@
 // Conexão desligada no meio da rodada (decisões 11 e 16): o concluir_rodada que dá
 // sem_conexao_ativa é refeito sem respostas; a rodada conclui sem mandar nada e nada vai para a
 // equipe, no Desconectar e no Trocar de WhatsApp.
-import { generateText, isStepCount, type StepResult, type StopCondition } from "ai";
+import {
+  generateText,
+  isStepCount,
+  type ModelMessage,
+  type StepResult,
+  type StopCondition,
+} from "ai";
 
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import type { Database, Json } from "@/integrations/supabase/types";
@@ -81,6 +87,19 @@ export const FOLGA_PRAZO_IA_MS = 3_000;
 export const MIN_TEMPO_IA_MS = 10_000;
 export const TEMPO_PASSO_MS = 40_000;
 export const MAX_REPETICOES = 2;
+
+/**
+ * Vai no fim do histórico quando a 1ª tentativa termina sem nada para dizer. Fica com o papel de
+ * usuário (o histórico já termina com o lead), marcado como aviso do sistema.
+ */
+export const AVISO_RESPOSTA_VAZIA = {
+  role: "user",
+  content:
+    "[Aviso do sistema, não é mensagem do lead] Você terminou sem responder. A última mensagem do lead " +
+    "pode ter chegado depois da sua resposta anterior. Se ela completa ou corrige algo, confirme em uma " +
+    "frase curta e siga a conversa, considerando a informação nova. Se for só um ok ou um obrigado, " +
+    "responda curto. Responda pela ferramenta responder.",
+} as const satisfies ModelMessage;
 /** Teto da espera por lida e digitando no fim da rodada (rodam em paralelo com a IA). */
 export const TETO_LIDA_DIGITANDO_MS = 3_000;
 
@@ -799,102 +818,123 @@ async function responderComIA(
   const prazo = new AbortController();
   const relogio = setTimeout(() => prazo.abort(), tempoTotal);
 
-  const passos: Passo[] = [];
-  // execuções do passo em andamento; o fim do passo (onStepEnd) já as traz em passo.content
-  let emAndamento: Execucao[] = [];
-  let resultado: Awaited<ReturnType<typeof generateText<FerramentasJanete>>>;
+  // Chamadas e passos de uma tentativa que terminou sem nada para dizer: entram na auditoria
+  // da rodada junto com os da tentativa seguinte.
+  const anteriores: Chamada[] = [];
+  let passosAnteriores = 0;
   try {
-    resultado = await generateText({
-      model: modelo,
-      instructions,
-      messages: mensagens,
-      tools: criarFerramentas({
-        rodadaId: rodada.id,
-        etapas: permitidas,
-        falar: modoFala,
-        aoExecutar: (ferramenta, entrada, r) => {
-          emAndamento.push({ ferramenta, entrada, resultado: r });
-        },
-      }),
-      stopWhen: [isStepCount(MAX_PASSOS), respondeu],
-      toolCallConcurrency: 1,
-      // o tempo total é o do abortSignal (prazo); o de cada passo continua 40 s
-      abortSignal: prazo.signal,
-      timeout: { stepMs: TEMPO_PASSO_MS },
-      maxRetries: MAX_REPETICOES,
-      providerOptions: opcoesDoProvedor(chave.provedor),
-      onStepEnd: (passo) => {
-        passos.push(passo);
-        emAndamento = [];
-      },
-    });
-  } catch (erro) {
-    // 6. Custo do que já rodou, mesmo com a rodada falhando
-    await registrarCusto(rodada.id, chave, passos);
-    const abortou = prazo.signal.aborted;
-    // 8. Erros do provedor (o prazo é do worker, não do provedor: não marca a chave)
-    // a chave de resposta nunca é da ElevenLabs (checks da 0012), mas o tipo do banco não sabe disso
-    const provedorErro = chave.provedor === "elevenlabs" ? undefined : chave.provedor;
-    const classe = abortou ? null : classificarErroIA(erro, provedorErro);
-    if (classe?.statusChave) await marcarStatusChave(chave.id, classe.statusChave, classe.codigo);
-    // Já passou para humano (janete_passar_para_humano gravou modo = 'humano'): falhar_rodada não
-    // mexeria na conversa e a auditoria se perderia. Conclui sem bolhas, como "passou sem se
-    // despedir". O abort pode chegar com uma ferramenta gravando (o pedido ao banco segue até o
-    // fim): espera por ela e a junta à auditoria, como chamada do passo interrompido.
-    const chamadas = [
-      ...chamadasDe(passos),
-      ...(await chamadasEmAndamento(emAndamento, passos.length + 1)),
-    ];
-    if (passouParaHumano(chamadas)) {
-      await concluir(rodada.id, [], chamadas, passos.length);
+    for (let tentativa = 1; ; tentativa++) {
+      const passos: Passo[] = [];
+      // execuções do passo em andamento; o fim do passo (onStepEnd) já as traz em passo.content
+      let emAndamento: Execucao[] = [];
+      let resultado: Awaited<ReturnType<typeof generateText<FerramentasJanete>>>;
+      try {
+        resultado = await generateText({
+          model: modelo,
+          instructions,
+          // 2ª tentativa: o aviso vai no fim, para o modelo responder ao que chegou por último
+          messages: tentativa === 1 ? mensagens : [...mensagens, AVISO_RESPOSTA_VAZIA],
+          tools: criarFerramentas({
+            rodadaId: rodada.id,
+            etapas: permitidas,
+            falar: modoFala,
+            aoExecutar: (ferramenta, entrada, r) => {
+              emAndamento.push({ ferramenta, entrada, resultado: r });
+            },
+          }),
+          stopWhen: [isStepCount(MAX_PASSOS), respondeu],
+          toolCallConcurrency: 1,
+          // o tempo total é o do abortSignal (prazo); o de cada passo continua 40 s
+          abortSignal: prazo.signal,
+          timeout: { stepMs: TEMPO_PASSO_MS },
+          maxRetries: MAX_REPETICOES,
+          providerOptions: opcoesDoProvedor(chave.provedor),
+          onStepEnd: (passo) => {
+            passos.push(passo);
+            emAndamento = [];
+          },
+        });
+      } catch (erro) {
+        // 6. Custo do que já rodou, mesmo com a rodada falhando
+        await registrarCusto(rodada.id, chave, passos);
+        const abortou = prazo.signal.aborted;
+        // 8. Erros do provedor (o prazo é do worker, não do provedor: não marca a chave)
+        // a chave de resposta nunca é da ElevenLabs (checks da 0012), mas o tipo do banco não sabe disso
+        const provedorErro = chave.provedor === "elevenlabs" ? undefined : chave.provedor;
+        const classe = abortou ? null : classificarErroIA(erro, provedorErro);
+        if (classe?.statusChave) await marcarStatusChave(chave.id, classe.statusChave, classe.codigo);
+        // Já passou para humano (janete_passar_para_humano gravou modo = 'humano'): falhar_rodada não
+        // mexeria na conversa e a auditoria se perderia. Conclui sem bolhas, como "passou sem se
+        // despedir". O abort pode chegar com uma ferramenta gravando (o pedido ao banco segue até o
+        // fim): espera por ela e a junta à auditoria, como chamada do passo interrompido.
+        const chamadas = [
+          ...anteriores,
+          ...chamadasDe(passos),
+          ...(await chamadasEmAndamento(emAndamento, passos.length + 1)),
+        ];
+        if (passouParaHumano(chamadas)) {
+          await concluir(rodada.id, [], chamadas, passosAnteriores + passos.length);
+          return;
+        }
+        // Prazo esgotado: falha passageira, a conversa volta no minuto seguinte
+        if (!classe) {
+          await falhar(rodada.id, "erro_provedor", true);
+          return;
+        }
+        await falhar(rodada.id, classe.motivo, classe.passageiro);
+        return;
+      }
+
+      const todos = resultado.steps.length > 0 ? resultado.steps : passos;
+      await registrarCusto(rodada.id, chave, todos);
+      // a chamada deu certo: o saldo voltou
+      if (lida.status === "sem_credito") await reativarChave(chave.id);
+
+      // 7. Fim
+      const chamadas = chamadasDe(todos);
+      const auditoria = [...anteriores, ...chamadas];
+      const nPassos = passosAnteriores + todos.length;
+      // modo fala: a fala vira áudio (ou texto, se a fala falhar), os textos vão depois
+      const daFala = vozId !== null ? falaDaFerramenta(chamadas) : null;
+      if (vozId !== null && daFala) {
+        const respostas = await respostasComFala(rodada, vozId, daFala.fala, daFala.textos, fimEm);
+        await concluir(rodada.id, respostas, auditoria, nPassos);
+        return;
+      }
+      const daFerramenta = bolhasDaFerramenta(chamadas);
+      if (daFerramenta) {
+        await concluir(rodada.id, emTexto(daFerramenta), auditoria, nPassos);
+        return;
+      }
+      const ultimo = todos.at(-1);
+      const terminou = ultimo !== undefined && ultimo.toolCalls.length === 0;
+      const doTexto = terminou ? bolhasDoTexto(ultimo.text) : [];
+      if (doTexto.length > 0) {
+        await concluir(rodada.id, emTexto(doTexto), auditoria, nPassos);
+        return;
+      }
+      if (passouParaHumano(auditoria)) {
+        // passou sem se despedir: conclui sem bolhas (a conversa já está com a equipe)
+        await concluir(rodada.id, [], auditoria, nPassos);
+        return;
+      }
+      if (todos.length >= MAX_PASSOS) {
+        await falhar(rodada.id, "limite_passos", false);
+        return;
+      }
+      // Terminou sem nada para dizer. Acontece quando a mensagem nova chega logo depois de uma
+      // resposta (um "ok", um complemento, uma correção): o modelo acha que já respondeu. Não é
+      // erro do provedor. Tenta uma vez na hora, com o aviso no fim; se vier vazio de novo, fica
+      // em silêncio, sem passar a conversa para a equipe.
+      if (tentativa === 1) {
+        anteriores.push(...chamadas);
+        passosAnteriores += todos.length;
+        continue;
+      }
+      await concluir(rodada.id, [], auditoria, nPassos);
       return;
     }
-    // Prazo esgotado: falha passageira, a conversa volta no minuto seguinte
-    if (!classe) {
-      await falhar(rodada.id, "erro_provedor", true);
-      return;
-    }
-    await falhar(rodada.id, classe.motivo, classe.passageiro);
-    return;
   } finally {
     clearTimeout(relogio);
   }
-
-  const todos = resultado.steps.length > 0 ? resultado.steps : passos;
-  await registrarCusto(rodada.id, chave, todos);
-  // a chamada deu certo: o saldo voltou
-  if (lida.status === "sem_credito") await reativarChave(chave.id);
-
-  // 7. Fim
-  const chamadas = chamadasDe(todos);
-  // modo fala: a fala vira áudio (ou texto, se a fala falhar), os textos vão depois
-  const daFala = vozId !== null ? falaDaFerramenta(chamadas) : null;
-  if (vozId !== null && daFala) {
-    const respostas = await respostasComFala(rodada, vozId, daFala.fala, daFala.textos, fimEm);
-    await concluir(rodada.id, respostas, chamadas, todos.length);
-    return;
-  }
-  const daFerramenta = bolhasDaFerramenta(chamadas);
-  if (daFerramenta) {
-    await concluir(rodada.id, emTexto(daFerramenta), chamadas, todos.length);
-    return;
-  }
-  const ultimo = todos.at(-1);
-  const terminou = ultimo !== undefined && ultimo.toolCalls.length === 0;
-  const doTexto = terminou ? bolhasDoTexto(ultimo.text) : [];
-  if (doTexto.length > 0) {
-    await concluir(rodada.id, emTexto(doTexto), chamadas, todos.length);
-    return;
-  }
-  if (passouParaHumano(chamadas)) {
-    // passou sem se despedir: conclui sem bolhas (a conversa já está com a equipe)
-    await concluir(rodada.id, [], chamadas, todos.length);
-    return;
-  }
-  if (todos.length >= MAX_PASSOS) {
-    await falhar(rodada.id, "limite_passos", false);
-    return;
-  }
-  // terminou sem nada para dizer: tenta de novo
-  await falhar(rodada.id, "erro_provedor", true);
 }

@@ -513,6 +513,31 @@ describe("responderRodada", () => {
     expect(bolhasDoTexto("um\n\n\n dois ")).toEqual(["um", "dois"]);
   });
 
+  it("terminou sem nada para dizer: tenta de novo na hora, com o aviso no fim, e responde", async () => {
+    const { pedidos } = modeloCom([
+      passoTexto(""),
+      passoFerramenta("responder", { bolhas: ["Ah, só de manhã, entendi."] }),
+    ]);
+    await responderRodada(rodada);
+    expect(pedidos).toHaveLength(2);
+    expect(JSON.stringify(pedidos[0]?.prompt)).not.toContain("Aviso do sistema");
+    expect(JSON.stringify(pedidos[1]?.prompt)).toContain("Aviso do sistema");
+    expect(estado.falhas).toEqual([]);
+    const respostas = rpc("concluir_rodada")[0]?.args["p_respostas"] as { texto: string }[];
+    expect(respostas.map((r) => r.texto)).toEqual(["Ah, só de manhã, entendi."]);
+    // custo das duas tentativas
+    expect(chamadas()).toHaveLength(2);
+  });
+
+  it("vazio duas vezes: conclui em silêncio, sem falha e sem passar para a equipe", async () => {
+    const { pedidos } = modeloCom([passoTexto("")]);
+    await responderRodada(rodada);
+    expect(pedidos).toHaveLength(2);
+    expect(estado.falhas).toEqual([]);
+    expect(rpc("concluir_rodada")).toHaveLength(1);
+    expect(rpc("concluir_rodada")[0]?.args["p_respostas"]).toEqual([]);
+  });
+
   it("6 passos sem responder → limite_passos, com o custo dos 6", async () => {
     const { pedidos } = modeloCom([passoFerramenta("atualizar_contato", { resumo: "Quer preço" })]);
     await responderRodada(rodada);
