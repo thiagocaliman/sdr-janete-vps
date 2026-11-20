@@ -1,14 +1,46 @@
-// O cliente do Supabase na demo: um falso que não chama rede nenhuma. A conta é a do dono fictício
-// da demo (o topo mostra o nome dele); sair não faz nada. Qualquer leitura do banco volta vazia.
+// O cliente do Supabase na demo: um falso que não chama rede nenhuma. Entrar e criar conta aceitam
+// qualquer e-mail e senha e só guardam o nome e o e-mail na aba (a senha não fica em lugar nenhum).
+// Na demo do painel, quem não entrou é o dono fictício. Qualquer leitura do banco volta vazia.
 import { DONO_DEMO } from "./negocio";
 
-const USUARIO = {
-  id: "demo-dono",
-  email: DONO_DEMO.email,
-  user_metadata: { nome: DONO_DEMO.nome },
-};
+const CHAVE = "janete-demo:conta";
 
-const SESSAO = { user: USUARIO, access_token: "demo", refresh_token: "demo", expires_in: 3600, token_type: "bearer" };
+interface ContaDemo {
+  nome: string;
+  email: string;
+}
+
+function lerConta(): ContaDemo | null {
+  try {
+    const bruto = sessionStorage.getItem(CHAVE);
+    return bruto ? (JSON.parse(bruto) as ContaDemo) : null;
+  } catch {
+    return null;
+  }
+}
+
+function gravarConta(c: ContaDemo | null): void {
+  try {
+    if (c) sessionStorage.setItem(CHAVE, JSON.stringify({ nome: c.nome, email: c.email }));
+    else sessionStorage.removeItem(CHAVE);
+  } catch {
+    // sem sessionStorage: vale só nesta página
+  }
+}
+
+/** true quando alguém entrou ou criou conta nesta aba. */
+export function contaDemoAtiva(): boolean {
+  return lerConta() !== null;
+}
+
+function usuario() {
+  const c = lerConta() ?? { nome: DONO_DEMO.nome, email: DONO_DEMO.email };
+  return { id: "demo-usuario", email: c.email, user_metadata: { nome: c.nome }, identities: [{ id: "demo" }] };
+}
+
+function sessao() {
+  return { user: usuario(), access_token: "demo", refresh_token: "demo", expires_in: 3600, token_type: "bearer" };
+}
 
 const vazio = { data: null, error: null };
 
@@ -32,13 +64,29 @@ const canal = {
   unsubscribe: async () => "ok",
 };
 
+const esperar = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
 export const supabase = {
   auth: {
-    getUser: async () => ({ data: { user: USUARIO }, error: null }),
-    getSession: async () => ({ data: { session: SESSAO }, error: null }),
+    getUser: async () => ({ data: { user: usuario() }, error: null }),
+    getSession: async () => ({ data: { session: sessao() }, error: null }),
     onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => {} } } }),
-    signOut: async () => vazio,
-    signInWithPassword: async () => ({ data: null, error: { message: "Na demo não há login." } }),
+    signOut: async () => {
+      gravarConta(null);
+      return vazio;
+    },
+    signInWithPassword: async ({ email }: { email: string; password: string }) => {
+      await esperar(500);
+      const antes = lerConta();
+      const nome = antes && antes.email === email ? antes.nome : email.split("@")[0] || "Você";
+      gravarConta({ nome, email });
+      return { data: { user: usuario(), session: sessao() }, error: null };
+    },
+    signUp: async ({ email, options }: { email: string; password: string; options?: { data?: { nome?: string } } }) => {
+      await esperar(500);
+      gravarConta({ nome: options?.data?.nome?.trim() || email.split("@")[0] || "Você", email });
+      return { data: { user: usuario(), session: sessao() }, error: null };
+    },
     updateUser: async () => ({ data: null, error: { message: "Na demo não dá para trocar a senha." } }),
   },
   from: () => consultaVazia(),

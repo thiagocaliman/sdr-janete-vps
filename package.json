@@ -7,7 +7,7 @@
     "dev": "vite dev",
     "build": "vite build",
     "build:dev": "vite build --mode development",
-    "build:demo": "vite build --config vite.demo.config.ts",
+    "build:demo": "vite build --config vite.demo.config.ts && vite build --config vite.demo.config.ts --mode cadastro",
     "preview": "vite preview",
     "lint": "eslint .",
     "format": "prettier --write .",

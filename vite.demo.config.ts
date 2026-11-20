@@ -1,7 +1,10 @@
-// Build da demo pública (suaagenc.ia.br/janete-demo): o painel da Janete no modo exemplo, como site
-// estático, sem banco, sem login, sem WhatsApp e sem IA. Não entra no build do app (vite.config.ts).
-// Troca três módulos pelos da demo: os dados de exemplo (o negócio fictício de voo panorâmico), o
-// Contexto de exemplo e o cliente do Supabase (um falso, que não chama nada).
+// Build das demos públicas da Janete, como sites estáticos, sem banco, sem WhatsApp e sem IA. Não
+// entra no build do app (vite.config.ts).
+//   vite build --config vite.demo.config.ts                  → suaagenc.ia.br/janete-demo (o painel)
+//   vite build --config vite.demo.config.ts --mode cadastro  → suaagenc.ia.br/janete-demo-cadastro
+//                                                              (criar conta, entrar e o onboarding)
+// Troca módulos pelos da demo: os dados de exemplo (o negócio fictício de voo panorâmico), o Contexto
+// de exemplo, a lista de modelos e o cliente do Supabase (um falso, que não chama nada).
 import fs from "node:fs";
 import path from "node:path";
 import { defineConfig, type Plugin } from "vite";
@@ -13,12 +16,12 @@ const TROCAS: Record<string, string> = {
   [path.join(src, "features/plataforma/exemplo/dados.ts")]: path.join(src, "demo/exemplo-dados.ts"),
   [path.join(src, "features/plataforma/contexto/dados.ts")]: path.join(src, "demo/contexto-dados.ts"),
   [path.join(src, "integrations/supabase/client.ts")]: path.join(src, "demo/supabase-falso.ts"),
+  [path.join(src, "features/servidor/listar-modelos.functions.ts")]: path.join(src, "demo/listar-modelos-falso.ts"),
 };
 
 const VAZIO = "\0janete-demo-servidor-vazio";
-const BASE = "/janete-demo/";
 
-function trocarModulos(): Plugin {
+function trocarModulos(BASE: string): Plugin {
   return {
     name: "janete-demo-trocas",
     enforce: "pre",
@@ -57,13 +60,21 @@ function trocarModulos(): Plugin {
   };
 }
 
-export default defineConfig({
-  root: path.resolve(__dirname, "demo"),
-  base: BASE,
-  publicDir: path.resolve(__dirname, "public"),
-  css: { transformer: "lightningcss" },
-  resolve: { alias: { "@": src } },
-  define: { "process.env": "{}" },
-  plugins: [trocarModulos(), tailwindcss(), viteReact()],
-  build: { outDir: path.resolve(__dirname, "dist-demo/janete-demo"), emptyOutDir: true },
+export default defineConfig(({ mode }) => {
+  const cadastro = mode === "cadastro";
+  const pasta = cadastro ? "janete-demo-cadastro" : "janete-demo";
+  const BASE = `/${pasta}/`;
+  return {
+    root: path.resolve(__dirname, "demo"),
+    base: BASE,
+    publicDir: path.resolve(__dirname, "public"),
+    css: { transformer: "lightningcss" },
+    resolve: { alias: { "@": src } },
+    define: {
+      "process.env": "{}",
+      "import.meta.env.VITE_DEMO_MODO": JSON.stringify(cadastro ? "cadastro" : "painel"),
+    },
+    plugins: [trocarModulos(BASE), tailwindcss(), viteReact()],
+    build: { outDir: path.resolve(__dirname, `dist-demo/${pasta}`), emptyOutDir: true },
+  };
 });

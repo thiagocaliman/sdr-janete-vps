@@ -2,11 +2,17 @@ import { CHAVE_SESSION_STORAGE, ESTADO_INICIAL, type EstadoOnboarding } from "@/
 
 import { CONTEXTO_DEMO } from "./negocio";
 
+/** Qual demo é este build: o painel com dados (janete-demo) ou o primeiro acesso (janete-demo-cadastro). */
+export type ModoDemo = "painel" | "cadastro";
+export const MODO_DEMO: ModoDemo = import.meta.env["VITE_DEMO_MODO"] === "cadastro" ? "cadastro" : "painel";
+
 /**
- * Deixa a aba como a de uma conta que já fez o onboarding: o nome da empresa (que o topo tira da
- * primeira frase de "Empresa e oferta") e o tom vêm das respostas. Só grava se a aba ainda não tem.
+ * Na demo do painel, deixa a aba como a de uma conta que já fez o onboarding: o nome da empresa (que
+ * o topo tira da primeira frase de "Empresa e oferta") e o tom vêm das respostas. Só grava se a aba
+ * ainda não tem. Na demo do cadastro, a aba começa vazia: o onboarding é feito pela pessoa.
  */
 export function prepararAbaDemo(): void {
+  if (MODO_DEMO !== "painel") return;
   try {
     if (sessionStorage.getItem(CHAVE_SESSION_STORAGE)) return;
     const estado: EstadoOnboarding = {
